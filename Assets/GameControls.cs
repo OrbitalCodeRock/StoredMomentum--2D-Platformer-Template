@@ -55,7 +55,7 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""MomentumStore"",
+                    ""name"": ""MomentumManipulate"",
                     ""type"": ""Button"",
                     ""id"": ""5fcbf3b0-f7fe-426c-8273-ca87f1c4db4d"",
                     ""expectedControlType"": ""Button"",
@@ -73,7 +73,7 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""TimeResume"",
+                    ""name"": ""TimeRestore"",
                     ""type"": ""Button"",
                     ""id"": ""d333ac4a-3a82-4d3b-a4eb-707a61a92223"",
                     ""expectedControlType"": ""Button"",
@@ -222,7 +222,7 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                     ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": ""Keyboard"",
-                    ""action"": ""MomentumStore"",
+                    ""action"": ""MomentumManipulate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -244,7 +244,7 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                     ""interactions"": ""Press(behavior=1)"",
                     ""processors"": """",
                     ""groups"": ""Keyboard"",
-                    ""action"": ""TimeResume"",
+                    ""action"": ""TimeRestore"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -270,9 +270,9 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_JumpStart = m_Player.FindAction("JumpStart", throwIfNotFound: true);
         m_Player_JumpEnd = m_Player.FindAction("JumpEnd", throwIfNotFound: true);
-        m_Player_MomentumStore = m_Player.FindAction("MomentumStore", throwIfNotFound: true);
+        m_Player_MomentumManipulate = m_Player.FindAction("MomentumManipulate", throwIfNotFound: true);
         m_Player_TimeSlow = m_Player.FindAction("TimeSlow", throwIfNotFound: true);
-        m_Player_TimeResume = m_Player.FindAction("TimeResume", throwIfNotFound: true);
+        m_Player_TimeRestore = m_Player.FindAction("TimeRestore", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -335,9 +335,9 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_JumpStart;
     private readonly InputAction m_Player_JumpEnd;
-    private readonly InputAction m_Player_MomentumStore;
+    private readonly InputAction m_Player_MomentumManipulate;
     private readonly InputAction m_Player_TimeSlow;
-    private readonly InputAction m_Player_TimeResume;
+    private readonly InputAction m_Player_TimeRestore;
     public struct PlayerActions
     {
         private @GameControls m_Wrapper;
@@ -345,9 +345,9 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @JumpStart => m_Wrapper.m_Player_JumpStart;
         public InputAction @JumpEnd => m_Wrapper.m_Player_JumpEnd;
-        public InputAction @MomentumStore => m_Wrapper.m_Player_MomentumStore;
+        public InputAction @MomentumManipulate => m_Wrapper.m_Player_MomentumManipulate;
         public InputAction @TimeSlow => m_Wrapper.m_Player_TimeSlow;
-        public InputAction @TimeResume => m_Wrapper.m_Player_TimeResume;
+        public InputAction @TimeRestore => m_Wrapper.m_Player_TimeRestore;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -366,15 +366,15 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                 @JumpEnd.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumpEnd;
                 @JumpEnd.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumpEnd;
                 @JumpEnd.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumpEnd;
-                @MomentumStore.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumStore;
-                @MomentumStore.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumStore;
-                @MomentumStore.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumStore;
+                @MomentumManipulate.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumManipulate;
+                @MomentumManipulate.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumManipulate;
+                @MomentumManipulate.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMomentumManipulate;
                 @TimeSlow.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeSlow;
                 @TimeSlow.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeSlow;
                 @TimeSlow.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeSlow;
-                @TimeResume.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeResume;
-                @TimeResume.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeResume;
-                @TimeResume.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeResume;
+                @TimeRestore.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeRestore;
+                @TimeRestore.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeRestore;
+                @TimeRestore.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTimeRestore;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -388,15 +388,15 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
                 @JumpEnd.started += instance.OnJumpEnd;
                 @JumpEnd.performed += instance.OnJumpEnd;
                 @JumpEnd.canceled += instance.OnJumpEnd;
-                @MomentumStore.started += instance.OnMomentumStore;
-                @MomentumStore.performed += instance.OnMomentumStore;
-                @MomentumStore.canceled += instance.OnMomentumStore;
+                @MomentumManipulate.started += instance.OnMomentumManipulate;
+                @MomentumManipulate.performed += instance.OnMomentumManipulate;
+                @MomentumManipulate.canceled += instance.OnMomentumManipulate;
                 @TimeSlow.started += instance.OnTimeSlow;
                 @TimeSlow.performed += instance.OnTimeSlow;
                 @TimeSlow.canceled += instance.OnTimeSlow;
-                @TimeResume.started += instance.OnTimeResume;
-                @TimeResume.performed += instance.OnTimeResume;
-                @TimeResume.canceled += instance.OnTimeResume;
+                @TimeRestore.started += instance.OnTimeRestore;
+                @TimeRestore.performed += instance.OnTimeRestore;
+                @TimeRestore.canceled += instance.OnTimeRestore;
             }
         }
     }
@@ -415,8 +415,8 @@ public partial class @GameControls : IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnJumpStart(InputAction.CallbackContext context);
         void OnJumpEnd(InputAction.CallbackContext context);
-        void OnMomentumStore(InputAction.CallbackContext context);
+        void OnMomentumManipulate(InputAction.CallbackContext context);
         void OnTimeSlow(InputAction.CallbackContext context);
-        void OnTimeResume(InputAction.CallbackContext context);
+        void OnTimeRestore(InputAction.CallbackContext context);
     }
 }

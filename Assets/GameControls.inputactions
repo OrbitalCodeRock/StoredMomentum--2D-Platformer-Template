@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MomentumStore",
+                    "name": "MomentumManipulate",
                     "type": "Button",
                     "id": "5fcbf3b0-f7fe-426c-8273-ca87f1c4db4d",
                     "expectedControlType": "Button",
@@ -51,7 +51,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "TimeResume",
+                    "name": "TimeRestore",
                     "type": "Button",
                     "id": "d333ac4a-3a82-4d3b-a4eb-707a61a92223",
                     "expectedControlType": "Button",
@@ -200,7 +200,7 @@
                     "interactions": "Press",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "MomentumStore",
+                    "action": "MomentumManipulate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -222,7 +222,7 @@
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "TimeResume",
+                    "action": "TimeRestore",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

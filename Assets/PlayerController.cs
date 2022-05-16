@@ -1,19 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     private PlayerData data;
 
+    private Rigidbody2D targetBody;
+
     public Rigidbody2D PlayerBody { get; private set; }
+
+    public Transform groundCheckPoint;
+    public float groundCheckRadius;
+    [SerializeField]
+    private LayerMask walkableLayers;
+
+
+    public Vector2 StoredVelocity { get; private set; }
+    public float StoredMass { get; private set; }
 
     public float LastOnGroundTime { get; private set; }
 
     public bool IsGrounded { get; private set; }
 
-    public bool IsJumping { get; private set; }
+    public bool IsJumping { get; private set; } = true;
     public float LastPressedJumpTime { get; private set; }
 
     private int groundLayer;
@@ -21,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         PlayerBody = this.GetComponent<Rigidbody2D>();
+        targetBody = PlayerBody;
         groundLayer = LayerMask.NameToLayer("Ground");
     }
     // Start is called before the first frame update
@@ -48,12 +61,6 @@ public class PlayerController : MonoBehaviour
         {
             SetGravityScale(data.gravityScale * data.fallGravityMult);
         }
-
-        if(CanJump() && Time.timeSinceLevelLoad - LastPressedJumpTime <= data.jumpBufferTime)
-        {
-            IsJumping = true;
-            Jump();
-        }
     }
 
     private bool CanJump()
@@ -63,13 +70,24 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!IsGrounded)
+        
+        if(Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, walkableLayers))
         {
-            Drag(data.airDrag);
+            LastOnGroundTime = Time.timeSinceLevelLoad;
+            IsGrounded = true;
+            IsJumping = false;
+            Drag(data.groundFriction);
+            
         }
         else
         {
-            Drag(data.groundFriction);
+            IsGrounded = false;
+            Drag(data.airDrag);
+        }
+        if (CanJump() && Time.timeSinceLevelLoad - LastPressedJumpTime <= data.jumpBufferTime)
+        {
+            IsJumping = true;
+            Jump();
         }
 
         Run(1);
@@ -192,30 +210,21 @@ public class PlayerController : MonoBehaviour
         return IsJumping && PlayerBody.velocity.y > 0;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void StoreMomentum()
     {
-        if (collision.gameObject.layer == groundLayer)
-        {
-            IsGrounded = true;
-            LastOnGroundTime = Time.timeSinceLevelLoad;
-            IsJumping = false;
-        }
+        StoredVelocity = targetBody.velocity;
+        StoredMass = targetBody.mass;
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void ChangeMomentum()
     {
-        if (collision.gameObject.layer == groundLayer)
-        {
-            LastOnGroundTime = Time.timeSinceLevelLoad;
-        }
+       
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnDrawGizmosSelected()
     {
-        if (collision.gameObject.layer == groundLayer)
-        {
-            IsGrounded = false;
-            LastOnGroundTime = Time.timeSinceLevelLoad;
-        }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
     }
 }
+

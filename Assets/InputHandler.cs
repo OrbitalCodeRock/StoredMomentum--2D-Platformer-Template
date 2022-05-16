@@ -17,6 +17,9 @@ public class InputHandler : MonoBehaviour
 
     public Action<InputArgs> OnJumpPressed;
     public Action<InputArgs> OnJumpReleased;
+    public Action<InputArgs> OnMomentumManipulate;
+    public Action<InputArgs> OnTimeSlow;
+    public Action<InputArgs> OnTimeRestore;
 
     public Vector2 MoveInput { get; private set; }
 
@@ -40,6 +43,10 @@ public class InputHandler : MonoBehaviour
 
         controls.Player.JumpStart.performed += ctx => OnJumpPressed(new InputArgs { context = ctx });
         controls.Player.JumpEnd.performed += ctx => OnJumpReleased(new InputArgs { context = ctx });
+
+        controls.Player.MomentumManipulate.performed += ctx => OnMomentumManipulate(new InputArgs { context = ctx });
+        controls.Player.TimeSlow.performed += ctx => OnTimeSlow(new InputArgs { context = ctx });
+        controls.Player.TimeRestore.performed += ctx => OnTimeRestore(new InputArgs { context = ctx });
     }
 
     private void OnEnable()
