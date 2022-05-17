@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    private GameControls controls;
+
     [SerializeField]
     private PlayerData data;
 
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LayerMask walkableLayers;
 
+    public Vector2 MoveInput { get; private set; }
 
     public Vector2 StoredVelocity { get; private set; }
     public float StoredMass { get; private set; }
@@ -30,19 +33,69 @@ public class PlayerController : MonoBehaviour
 
     private int groundLayer;
 
+    private void StartMove(InputAction.CallbackContext context)
+    {
+        MoveInput = context.ReadValue<Vector2>();
+    }
+
+    private void CancelMove(InputAction.CallbackContext context)
+    {
+        MoveInput = Vector2.zero;
+    }
+
+    private void OnJumpStart(InputAction.CallbackContext args)
+    {
+        Debug.Log("JumpStarted");
+        LastPressedJumpTime = Time.timeSinceLevelLoad;
+    }
+
+    private Coroutine delayedCut;
+    private void OnJumpEnd(InputAction.CallbackContext args)
+    {
+
+        Debug.Log("JumpEnded");
+        if (CanJumpCut())
+        {
+            JumpCut();
+        }
+        else
+        {
+            if (delayedCut != null) StopCoroutine(delayedCut);
+            delayedCut = StartCoroutine(delayedJumpCut());
+        }
+    }
+
     private void Awake()
     {
+        controls = new GameControls();
+        
+        controls.Player.Move.performed += StartMove;
+        controls.Player.Move.canceled += CancelMove;
+
+        controls.Player.JumpStart.performed += OnJumpStart;
+        controls.Player.JumpEnd.performed += OnJumpEnd;
+
+        /*controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
+        controls.Player.TimeSlow.performed += OnTimeSlow;
+        controls.Player.TimeRestore.performed += OnTimeRestore;*/
+
         PlayerBody = this.GetComponent<Rigidbody2D>();
         targetBody = PlayerBody;
         groundLayer = LayerMask.NameToLayer("Ground");
     }
+    private void OnEnable()
+    {
+        controls.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Disable();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        InputHandler.instance.OnJumpPressed += args => OnJumpStart(args);
-
-        InputHandler.instance.OnJumpReleased += args => OnJumpEnd(args);
-
         SetGravityScale(data.gravityScale);
     }
 
@@ -53,7 +106,7 @@ public class PlayerController : MonoBehaviour
         {
             SetGravityScale(data.gravityScale);
         }
-        else if (InputHandler.instance.MoveInput.y < 0)
+        else if (MoveInput.y < 0)
         {
             SetGravityScale(data.gravityScale * data.quickFallGravityMult);
         }
@@ -94,27 +147,12 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void OnJumpStart(InputHandler.InputArgs args)
+    private void OnDrawGizmosSelected()
     {
-        Debug.Log("JumpStarted");
-        LastPressedJumpTime = Time.timeSinceLevelLoad;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
     }
 
-    private Coroutine delayedCut;
-    public void OnJumpEnd(InputHandler.InputArgs args)
-    {
-
-        Debug.Log("JumpEnded");
-        if (CanJumpCut())
-        {
-            JumpCut();
-        }
-        else
-        {
-            if (delayedCut != null) StopCoroutine(delayedCut);
-            delayedCut = StartCoroutine(delayedJumpCut());
-        }
-    }
 
     IEnumerator delayedJumpCut()
     {
@@ -143,7 +181,7 @@ public class PlayerController : MonoBehaviour
 
     private void Run(float lerpAmount)
     {
-        float targetSpeed = InputHandler.instance.MoveInput.x * data.runMaxSpeed;
+        float targetSpeed = MoveInput.x * data.runMaxSpeed;
         float speedDif = targetSpeed - PlayerBody.velocity.x;
 
         float accelRate;
@@ -220,11 +258,6 @@ public class PlayerController : MonoBehaviour
     {
        
     }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
-    }
+    
 }
 
