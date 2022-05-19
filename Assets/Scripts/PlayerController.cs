@@ -5,7 +5,17 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    private GameControls controls;
+    // Bug where player can jump in mid-air after getting flung by stored momentum (only during coyote time window)
+
+    public GameControls controls;
+
+    [SerializeField]
+    private Camera mainCamera;
+
+    private ObjectSelector objectSelector;
+
+    public GameObject MomentumUI;
+    private GameObject storedIndicator;
 
     [SerializeField]
     private PlayerData data;
@@ -19,6 +29,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LayerMask walkableLayers;
 
+    public enum ManipulationState
+    {
+        Store,
+        Release
+    }
+
+    public ManipulationState momentumManipulation;
+
+    public bool isSlowingTime { get; private set; }
+
     public Vector2 MoveInput { get; private set; }
 
     public Vector2 StoredVelocity { get; private set; }
@@ -29,16 +49,19 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded { get; private set; }
 
     public bool IsJumping { get; private set; } = true;
+
+    public bool conserveMomentum { get; private set; }
     public float LastPressedJumpTime { get; private set; }
+    public float LastMomentumStoreTime { get; private set; }
+    public float LastMomentumReleaseTime { get; private set; }
 
-    private int groundLayer;
 
-    private void StartMove(InputAction.CallbackContext context)
+    private void OnMoveStart(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
     }
 
-    private void CancelMove(InputAction.CallbackContext context)
+    private void OnMoveCancel(InputAction.CallbackContext context)
     {
         MoveInput = Vector2.zero;
     }
@@ -50,6 +73,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private Coroutine delayedCut;
+
     private void OnJumpEnd(InputAction.CallbackContext args)
     {
 
@@ -65,23 +89,108 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnMomentumManipulate(InputAction.CallbackContext args)
+    {
+        // Add an if statement to limit action spamming
+        switch (momentumManipulation)
+        {
+            case ManipulationState.Store:
+                StoredVelocity = PlayerBody.velocity;
+                targetBody = PlayerBody;
+                StoredMass = PlayerBody.mass;
+                break;
+            case ManipulationState.Release:
+                break;
+        }
+    }
+
+    private void OnTimeSlow(InputAction.CallbackContext args)
+    {
+        Time.timeScale = 0.5f;
+        isSlowingTime = true;
+        MomentumUI.SetActive(true);
+        objectSelector.enabled = true;
+        objectSelector.mouseClick.performed += OnClick;
+    }
+
+    private void OnTimeRestore(InputAction.CallbackContext args)
+    {
+        objectSelector.mouseClick.performed -= OnClick;
+        objectSelector.Deselect();
+        objectSelector.enabled = false;
+        switch (momentumManipulation)
+        {
+            case ManipulationState.Store:
+                StoredVelocity = targetBody.velocity;
+                StoredMass = targetBody.mass;
+                momentumManipulation = ManipulationState.Release;
+                LastMomentumStoreTime = Time.timeSinceLevelLoad;
+                break;
+            case ManipulationState.Release:
+                conserveMomentum = true;
+                ReleaseMomentum();
+                momentumManipulation = ManipulationState.Store;
+                LastMomentumReleaseTime = Time.timeSinceLevelLoad;
+                break;
+        }
+        MomentumUI.SetActive(false);
+        Time.timeScale = 1f;
+        isSlowingTime = false;
+    }
+
+    private void ReleaseMomentum()
+    {
+        float forceMagnitude = StoredVelocity.magnitude * StoredMass;
+        Vector2 direction = ((Vector2)mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - targetBody.position).normalized;
+        targetBody.AddForce(forceMagnitude * direction, ForceMode2D.Impulse);
+    }
+
+    
+
+    private void OnClick(InputAction.CallbackContext args)
+    {
+        Rigidbody2D newBody = objectSelector.SelectedObject?.GetComponent<Rigidbody2D>();
+        switch (momentumManipulation)
+        {
+            case ManipulationState.Store:
+                if(newBody != null)
+                {
+                    StoredVelocity = newBody.velocity;
+                    StoredMass = newBody.mass;
+                    momentumManipulation = ManipulationState.Release;
+                }
+                break;
+            case ManipulationState.Release:
+                // Restore the Indicator of the last selected object
+                // store the Indicator of the currently selected object
+                // replace with new Indicator that shows release trajectory
+                break;
+        }
+        if(newBody != null)
+        {
+            targetBody = newBody;
+        }
+
+    }
+
     private void Awake()
     {
+        objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
+
         controls = new GameControls();
         
-        controls.Player.Move.performed += StartMove;
-        controls.Player.Move.canceled += CancelMove;
+        controls.Player.Move.performed += OnMoveStart;
+        controls.Player.Move.canceled += OnMoveCancel;
 
         controls.Player.JumpStart.performed += OnJumpStart;
         controls.Player.JumpEnd.performed += OnJumpEnd;
 
-        /*controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
+        controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
         controls.Player.TimeSlow.performed += OnTimeSlow;
-        controls.Player.TimeRestore.performed += OnTimeRestore;*/
+        controls.Player.TimeRestore.performed += OnTimeRestore;
 
         PlayerBody = this.GetComponent<Rigidbody2D>();
         targetBody = PlayerBody;
-        groundLayer = LayerMask.NameToLayer("Ground");
     }
     private void OnEnable()
     {
@@ -123,7 +232,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
         if(Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, walkableLayers))
         {
             LastOnGroundTime = Time.timeSinceLevelLoad;
@@ -143,7 +251,18 @@ public class PlayerController : MonoBehaviour
             Jump();
         }
 
-        Run(1);
+        if (!conserveMomentum)
+        {
+            Run(1);
+        }
+        else if(Mathf.Abs(MoveInput.x) >= 0.01f && Mathf.Sign(MoveInput.x) != Mathf.Sign(PlayerBody.velocity.x))
+        {
+            Run(0.25f);   
+        }
+        if (Mathf.Abs(PlayerBody.velocity.x) < data.runMaxSpeed)
+        {
+            conserveMomentum = false;
+        }
 
     }
 
@@ -246,18 +365,6 @@ public class PlayerController : MonoBehaviour
     private bool CanJumpCut()
     {
         return IsJumping && PlayerBody.velocity.y > 0;
-    }
-
-    private void StoreMomentum()
-    {
-        StoredVelocity = targetBody.velocity;
-        StoredMass = targetBody.mass;
-    }
-
-    private void ChangeMomentum()
-    {
-       
-    }
-    
+    }    
 }
 
