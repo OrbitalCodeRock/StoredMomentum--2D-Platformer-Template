@@ -6,7 +6,8 @@ public class PlayerGroundedState : PlayerBaseState
 {
     public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
-
+        IsRootState = true;
+        InitializeSubState();
     }
 
     public override void EnterState()
@@ -15,7 +16,7 @@ public class PlayerGroundedState : PlayerBaseState
     }
     public override void UpdateState()
     {
-
+        CheckSwitchStates();
     }
     public override void ExitState()
     {
@@ -23,13 +24,18 @@ public class PlayerGroundedState : PlayerBaseState
     }
     public override void CheckSwitchStates()
     {
-        if(Time.timeSinceLevelLoad - _ctx.LastPressedJumpTime <= _ctx.Data.jumpBufferTime)
+        if(Time.timeSinceLevelLoad - Ctx.LastPressedJumpTime <= Ctx.Data.jumpBufferTime)
         {
-            SwitchState(_factory.Jump());
+            SwitchState(Factory.Jump());
         }
     }
     public override void InitializeSubState()
     {
-
+        if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
+            SetSubState(Factory.Idle());
+        }
+        else{
+            SetSubState(Factory.Walk());
+        }
     }
 }
