@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class PlayerStateMachine : MonoBehaviour
 {
-    // Bug where player can jump in mid-air after getting flung by stored momentum (only during coyote time window)
+
+    // State Variables
+    private PlayerBaseState _currentState;
+    private PlayerStateFactory _states;
+
+    public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
+    public PlayerData Data { get { return _data; } set { _data = value; } }
 
     public GameControls Controls;
 
@@ -74,6 +80,26 @@ public class PlayerController : MonoBehaviour
 
     private Coroutine delayedCut;
 
+    private void JumpCut()
+    {
+        //applies force downward when the jump button is released. Allowing the player to control jump height
+        PlayerBody.AddForce(Vector2.down * PlayerBody.velocity.y * (1 - _data.jumpCutMultiplier), ForceMode2D.Impulse);
+    }
+
+    private bool CanJumpCut()
+    {
+        return IsJumping && PlayerBody.velocity.y > 0;
+    }
+
+    IEnumerator delayedJumpCut()
+    {
+        yield return new WaitForSeconds(_data.jumpBufferTime - (Time.timeSinceLevelLoad - LastPressedJumpTime));
+        if (CanJumpCut())
+        {
+            JumpCut();
+        }
+    }
+
     private void OnJumpEnd(InputAction.CallbackContext args)
     {
 
@@ -137,7 +163,6 @@ public class PlayerController : MonoBehaviour
         Time.timeScale = 1f;
         IsSlowingTime = false;
     }
-
     private void ReleaseMomentum()
     {
         float forceMagnitude = StoredVelocity.magnitude * StoredMass;
@@ -145,7 +170,7 @@ public class PlayerController : MonoBehaviour
         _targetBody.AddForce(forceMagnitude * direction, ForceMode2D.Impulse);
     }
 
-    
+
 
     private void OnClick(InputAction.CallbackContext args)
     {
@@ -153,7 +178,7 @@ public class PlayerController : MonoBehaviour
         switch (momentumManipulation)
         {
             case ManipulationState.Store:
-                if(newBody != null)
+                if (newBody != null)
                 {
                     StoredVelocity = newBody.velocity;
                     StoredMass = newBody.mass;
@@ -166,19 +191,23 @@ public class PlayerController : MonoBehaviour
                 // replace with new Indicator that shows release trajectory
                 break;
         }
-        if(newBody != null)
+        if (newBody != null)
         {
             _targetBody = newBody;
         }
 
     }
-
     private void Awake()
     {
+
         _objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
 
         Controls = new GameControls();
-        
+
+        _states = new PlayerStateFactory(this);
+        _currentState = _states.Grounded();
+        _currentState.EnterState();
+
         Controls.Player.Move.performed += OnMoveStart;
         Controls.Player.Move.canceled += OnMoveCancel;
 
@@ -202,6 +231,11 @@ public class PlayerController : MonoBehaviour
         Controls.Disable();
     }
 
+    public void SetGravityScale(float scale)
+    {
+        PlayerBody.gravityScale = scale;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -211,160 +245,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(PlayerBody.velocity.y >= 0)
-        {
-            SetGravityScale(_data.gravityScale);
-        }
-        else if (MoveInput.y < 0)
-        {
-            SetGravityScale(_data.gravityScale * _data.quickFallGravityMult);
-        }
-        else
-        {
-            SetGravityScale(_data.gravityScale * _data.fallGravityMult);
-        }
+        
     }
-
-    private bool CanJump()
-    {
-        return Time.timeSinceLevelLoad - LastOnGroundTime <= _data.coyoteTime && !IsJumping;
-    }
-
-    private void FixedUpdate()
-    {
-        if(Physics2D.OverlapCircle(GroundCheckPoint.position, GroundCheckRadius, _walkableLayers))
-        {
-            LastOnGroundTime = Time.timeSinceLevelLoad;
-            IsGrounded = true;
-            IsJumping = false;
-            Drag(_data.groundFriction);
-            
-        }
-        else
-        {
-            IsGrounded = false;
-            Drag(_data.airDrag);
-        }
-        if (CanJump() && Time.timeSinceLevelLoad - LastPressedJumpTime <= _data.jumpBufferTime)
-        {
-            IsJumping = true;
-            Jump();
-        }
-
-        if (!ConserveMomentum)
-        {
-            Run(1);
-        }
-        else if(Mathf.Abs(MoveInput.x) >= 0.01f && Mathf.Sign(MoveInput.x) != Mathf.Sign(PlayerBody.velocity.x))
-        {
-            Run(0.25f);   
-        }
-        if (Mathf.Abs(PlayerBody.velocity.x) < _data.runMaxSpeed)
-        {
-            ConserveMomentum = false;
-        }
-
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(GroundCheckPoint.position, GroundCheckRadius);
-    }
-
-
-    IEnumerator delayedJumpCut()
-    {
-        yield return new WaitForSeconds(_data.jumpBufferTime - (Time.timeSinceLevelLoad - LastPressedJumpTime));
-        if (CanJumpCut())
-        {
-            JumpCut();
-        }
-    }
-
-    public void SetGravityScale(float scale)
-    {
-        PlayerBody.gravityScale = scale;
-    }
-
-    private void Drag(float amount)
-    {
-        Vector2 force = amount * PlayerBody.velocity.normalized;
-        force.x = Mathf.Min(Mathf.Abs(PlayerBody.velocity.x), Mathf.Abs(force.x));
-        force.y = Mathf.Min(Mathf.Abs(PlayerBody.velocity.y), Mathf.Abs(force.y));
-        force.x *= Mathf.Sign(PlayerBody.velocity.x); //finds direction to apply force
-        force.y *= Mathf.Sign(PlayerBody.velocity.y);
-
-        PlayerBody.AddForce(-force, ForceMode2D.Impulse);
-    }
-
-    private void Run(float lerpAmount)
-    {
-        float targetSpeed = MoveInput.x * _data.runMaxSpeed;
-        float speedDif = targetSpeed - PlayerBody.velocity.x;
-
-        float accelRate;
-
-        if (_data.doKeepRunMomentum && ((PlayerBody.velocity.x > targetSpeed && targetSpeed > 0.01f) || (PlayerBody.velocity.x < targetSpeed && targetSpeed < -0.01f)))
-        {
-            accelRate = 0;
-        }
-        else
-        {
-            if (IsGrounded)
-            {
-                // If the target speed is greater than a minimum (0.01), use running acceleration. Otherwise, decelerate.
-                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel : _data.runDeccel;
-            }
-            else
-            {
-                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel * _data.accelInAir : _data.runDeccel * _data.deccelInAir;
-            }
-        }
-
-        float velPower;
-        if(Mathf.Abs(targetSpeed) < 0.01f)
-        {
-            velPower = _data.stopPower;
-        }
-        else if(Mathf.Abs(PlayerBody.velocity.x) > 0 && (Mathf.Sign(targetSpeed) != Mathf.Sign(PlayerBody.velocity.x)))
-        {
-            velPower = _data.turnPower;
-        }
-        else
-        {
-            velPower = _data.accelPower;
-        }
-
-        // applies acceleration to speed difference, then is raised to a set power so the acceleration increases with higher speeds, finally multiplies by sign to preserve direction
-        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
-        movement = Mathf.Lerp(PlayerBody.velocity.x, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
-
-        // Possibly change this to account for sloped movement
-        PlayerBody.AddForce(movement * Vector2.right); // applies force force to rigidbody, multiplying by Vector2.right so that it only affects X axis 
-
-    }
-
-    private void Jump()
-    {
-        float force = _data.jumpForce;
-        // Cancel out downward forces on jump;
-        if (PlayerBody.velocity.y < 0)
-        {
-            force -= PlayerBody.velocity.y;
-        }
-        PlayerBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);    
-    }
-
-    private void JumpCut()
-    {
-        //applies force downward when the jump button is released. Allowing the player to control jump height
-        PlayerBody.AddForce(Vector2.down * PlayerBody.velocity.y * (1 - _data.jumpCutMultiplier), ForceMode2D.Impulse);
-    }
-
-    private bool CanJumpCut()
-    {
-        return IsJumping && PlayerBody.velocity.y > 0;
-    }    
 }
-

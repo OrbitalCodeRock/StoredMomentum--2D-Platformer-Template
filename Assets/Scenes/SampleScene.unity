@@ -1566,6 +1566,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1331857591}
   - component: {fileID: 1331857590}
+  - component: {fileID: 1331857594}
   - component: {fileID: 1331857592}
   - component: {fileID: 1331857589}
   - component: {fileID: 1331857588}
@@ -1688,19 +1689,19 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1331857587}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3116a6b62a7956a4db507e06cff7ebb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 519420031}
+  _mainCamera: {fileID: 519420031}
   MomentumUI: {fileID: 742007712}
-  data: {fileID: 11400000, guid: 6120ffef8dd25984d93a961d07b13b9f, type: 2}
-  groundCheckPoint: {fileID: 113878989}
-  groundCheckRadius: 0.46
-  walkableLayers:
+  _data: {fileID: 11400000, guid: 6120ffef8dd25984d93a961d07b13b9f, type: 2}
+  GroundCheckPoint: {fileID: 113878989}
+  GroundCheckRadius: 0.5
+  _walkableLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   momentumManipulation: 0
 --- !u!114 &1331857593
 MonoBehaviour:
@@ -1715,6 +1716,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hoverIndicator: {fileID: 1548665288}
+--- !u!114 &1331857594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1331857587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c473a67722c57934896bd489eed3fed2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mainCamera: {fileID: 519420031}
+  MomentumUI: {fileID: 742007712}
+  _data: {fileID: 11400000, guid: 6120ffef8dd25984d93a961d07b13b9f, type: 2}
+  GroundCheckPoint: {fileID: 113878989}
+  GroundCheckRadius: 0.5
+  _walkableLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  momentumManipulation: 0
 --- !u!1 &1380685943
 GameObject:
   m_ObjectHideFlags: 0
