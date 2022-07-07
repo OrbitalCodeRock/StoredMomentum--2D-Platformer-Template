@@ -245,6 +245,6 @@ public class PlayerStateMachine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _currentState.UpdateState();        
+        _currentState.UpdateStates();        
     }
 }

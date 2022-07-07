@@ -7,11 +7,11 @@ public class PlayerGroundedState : PlayerBaseState
     public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
         IsRootState = true;
-        InitializeSubState();
     }
 
     public override void EnterState()
     {
+        InitializeSubState();
         Debug.Log("Grounded!");
     }
     public override void UpdateState()
