@@ -11,19 +11,35 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void EnterState()
     {
-
+        Ctx.IsJumping = true;
+        Ctx.Jump();
     }
     public override void UpdateState()
     {
-        CheckSwitchStates();
+        if (CheckSwitchStates()) return;
     }
+
+    public override void FixedUpdateState()
+    {
+        
+    }
+
     public override void ExitState()
     {
 
     }
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
-
+        if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
+        {
+            SwitchState(Factory.Idle());
+            return true;
+        }
+        else
+        {
+            SwitchState(Factory.Walk());
+            return true;
+        }
     }
     public override void InitializeSubState()
     {

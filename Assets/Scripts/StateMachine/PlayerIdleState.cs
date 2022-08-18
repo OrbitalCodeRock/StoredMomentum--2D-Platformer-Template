@@ -16,15 +16,33 @@ public class PlayerIdleState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        CheckSwitchStates();
+        if (CheckSwitchStates()) return;
     }
+
+    public override void FixedUpdateState()
+    {
+        if (!Ctx.ConserveMomentum)
+        {
+            Ctx.Run(1);
+        }
+        if (Mathf.Abs(Ctx.PlayerBody.velocity.x) < Ctx.Data.runMaxSpeed)
+        {
+            Ctx.ConserveMomentum = false;
+        }
+    }
+
     public override void ExitState()
     {
 
     }
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
-
+        if (Mathf.Abs(Ctx.MoveInput.x) > 0.01f)
+        {
+            SwitchState(Factory.Walk());
+            return true;
+        }
+        return false;
     }
     public override void InitializeSubState()
     {

@@ -20,22 +20,33 @@ public abstract class PlayerBaseState
 
     public abstract void EnterState();
     public abstract void UpdateState();
+    public abstract void FixedUpdateState();
     public abstract void ExitState();
-    public abstract void CheckSwitchStates();
+    // Returns True if state switch was made, false if not
+    public abstract bool CheckSwitchStates();
     public abstract void InitializeSubState();
 
-    public void UpdateStates()
+    public void CallUpdateStates()
     {
         UpdateState();
         if(_currentSubState != null){
-            _currentSubState.UpdateStates();
+            _currentSubState.CallUpdateStates();
         }
     }
 
-    public void ExitStates(){
+    public void CallFixedUpdateStates()
+    {
+        FixedUpdateState();
+        if(_currentSubState != null)
+        {
+            _currentSubState.CallFixedUpdateStates();
+        }
+    }
+
+    public void CallExitStates(){
         ExitState();
         if(_currentSubState != null){
-            _currentSubState.ExitStates();
+            _currentSubState.CallExitStates();
         }
     }
 
@@ -62,6 +73,7 @@ public abstract class PlayerBaseState
     {
         _currentSubState = newSubState;
         newSubState.SetSuperState(this);
+        _currentSubState.EnterState();
     }
 
 }

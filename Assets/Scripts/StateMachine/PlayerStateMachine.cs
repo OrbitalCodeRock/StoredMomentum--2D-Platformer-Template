@@ -31,9 +31,11 @@ public class PlayerStateMachine : MonoBehaviour
     public Rigidbody2D PlayerBody { get; private set; }
 
     public Transform GroundCheckPoint;
-    public float GroundCheckRadius;
+    public Vector2 GroundCheckSize;
     [SerializeField]
     private LayerMask _walkableLayers;
+
+    public LayerMask WalkableLayers { get { return _walkableLayers; } set { _walkableLayers = value; } }
 
     public enum ManipulationState
     {
@@ -50,16 +52,23 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector2 StoredVelocity { get; private set; }
     public float StoredMass { get; private set; }
 
-    public float LastOnGroundTime { get; private set; }
+    public float LastOnGroundTime { get; set; }
 
-    public bool IsGrounded { get; private set; }
+    [SerializeField]
+    private bool _isGrounded;
 
-    public bool IsJumping { get; private set; } = true;
+    public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
 
-    public bool ConserveMomentum { get; private set; }
-    public float LastPressedJumpTime { get; private set; }
-    public float LastMomentumStoreTime { get; private set; }
-    public float LastMomentumReleaseTime { get; private set; }
+    public bool IsJumping { get; set; }
+
+    public bool IsFalling { get; set; }
+
+    public Collider2D LastGroundedSurface { get; set; }
+
+    public bool ConserveMomentum { get; set; }
+    public float LastPressedJumpTime { get; set; }
+    public float LastMomentumStoreTime { get; set; }
+    public float LastMomentumReleaseTime { get; set; }
 
 
     private void OnMoveStart(InputAction.CallbackContext context)
@@ -79,6 +88,64 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     private Coroutine delayedCut;
+
+    public void Run(float lerpAmount)
+    {
+        float targetSpeed = MoveInput.x * _data.runMaxSpeed;
+        float speedDif = targetSpeed - PlayerBody.velocity.x;
+
+        float accelRate;
+
+        if (_data.doKeepRunMomentum && ((PlayerBody.velocity.x > targetSpeed && targetSpeed > 0.01f) || (PlayerBody.velocity.x < targetSpeed && targetSpeed < -0.01f)))
+        {
+            accelRate = 0;
+        }
+        else
+        {
+            if (IsGrounded)
+            {
+                // If the target speed is greater than a minimum (0.01), use running acceleration. Otherwise, decelerate.
+                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel : _data.runDeccel;
+            }
+            else
+            {
+                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel * _data.accelInAir : _data.runDeccel * _data.deccelInAir;
+            }
+        }
+
+        float velPower;
+        if (Mathf.Abs(targetSpeed) < 0.01f)
+        {
+            velPower = _data.stopPower;
+        }
+        else if (Mathf.Abs(PlayerBody.velocity.x) > 0 && (Mathf.Sign(targetSpeed) != Mathf.Sign(PlayerBody.velocity.x)))
+        {
+            velPower = _data.turnPower;
+        }
+        else
+        {
+            velPower = _data.accelPower;
+        }
+
+        // applies acceleration to speed difference, then is raised to a set power so the acceleration increases with higher speeds, finally multiplies by sign to preserve direction
+        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
+        movement = Mathf.Lerp(PlayerBody.velocity.x, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
+
+        // Possibly change this to account for sloped movement
+        PlayerBody.AddForce(movement * Vector2.right); // applies force force to rigidbody, multiplying by Vector2.right so that it only affects X axis 
+
+    }
+
+    public void Jump()
+    {
+        float force = _data.jumpForce;
+        // Cancel out downward forces on jump;
+        if (PlayerBody.velocity.y < 0)
+        {
+            force -= PlayerBody.velocity.y;
+        }
+        PlayerBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+    }
 
     private void JumpCut()
     {
@@ -214,9 +281,9 @@ public class PlayerStateMachine : MonoBehaviour
         Controls.Player.JumpStart.performed += OnJumpStart;
         Controls.Player.JumpEnd.performed += OnJumpEnd;
 
-        Controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
+        /*Controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
         Controls.Player.TimeSlow.performed += OnTimeSlow;
-        Controls.Player.TimeRestore.performed += OnTimeRestore;
+        Controls.Player.TimeRestore.performed += OnTimeRestore;*/
 
         PlayerBody = this.GetComponent<Rigidbody2D>();
         _targetBody = PlayerBody;
@@ -236,6 +303,17 @@ public class PlayerStateMachine : MonoBehaviour
         PlayerBody.gravityScale = scale;
     }
 
+    public void Drag(float amount)
+    {
+        Vector2 force = amount * PlayerBody.velocity.normalized;
+        force.x = Mathf.Min(Mathf.Abs(PlayerBody.velocity.x), Mathf.Abs(force.x));
+        force.y = Mathf.Min(Mathf.Abs(PlayerBody.velocity.y), Mathf.Abs(force.y));
+        force.x *= Mathf.Sign(PlayerBody.velocity.x); //finds direction to apply force
+        force.y *= Mathf.Sign(PlayerBody.velocity.y);
+
+        PlayerBody.AddForce(-force, ForceMode2D.Impulse);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -245,6 +323,16 @@ public class PlayerStateMachine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _currentState.UpdateStates();        
+        _currentState.CallUpdateStates();        
+    }
+
+    private void FixedUpdate()
+    {
+        _currentState.CallFixedUpdateStates();
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        
     }
 }
