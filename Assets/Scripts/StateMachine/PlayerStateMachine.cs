@@ -6,6 +6,11 @@ using UnityEngine.InputSystem;
 public class PlayerStateMachine : MonoBehaviour
 {
 
+    // TODO: Make GroundCheckSize larger, add logic to disallow jumping on slopes that are too steep, add logic to move in directions parallel to slopes
+    // Glitches: Double Jump boost thingy (You can tap jump once then jump again while running into a slope for a sort of mega jump).
+    // Moving on a slope causes you to run faster than you should, (try changing how the run function works)
+
+
     // State Variables
     private PlayerBaseState _currentState;
     private PlayerStateFactory _states;
@@ -59,14 +64,19 @@ public class PlayerStateMachine : MonoBehaviour
 
     public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
 
-    public bool IsJumping { get; set; }
+    [SerializeField]
+    private bool isJumping;
+    public bool IsJumping { get { return isJumping; } set { isJumping = value; } }
 
     public bool IsFalling { get; set; }
 
     public Collider2D LastGroundedSurface { get; set; }
 
+    public Vector2 LastSurfaceNormal { get; set; }
+
     public bool ConserveMomentum { get; set; }
-    public float LastPressedJumpTime { get; set; }
+    public float LastJumpPressTime { get; set; }
+    public float LastJumpTime { get; set; }
     public float LastMomentumStoreTime { get; set; }
     public float LastMomentumReleaseTime { get; set; }
 
@@ -83,15 +93,69 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnJumpStart(InputAction.CallbackContext args)
     {
-        Debug.Log("JumpStarted");
-        LastPressedJumpTime = Time.timeSinceLevelLoad;
+        //Debug.Log("JumpPressed");
+        LastJumpPressTime = Time.timeSinceLevelLoad;
     }
 
     private Coroutine delayedCut;
-
+    
+    // I think I need to change the general idea behind how this movement works. To me it seems imprecise/inaccurate.
     public void Run(float lerpAmount)
     {
+        /*float targetSpeed;
+        float velocityMagnitude;
+        float accelRate;
+
+        if (IsGrounded)
+        {
+            targetSpeed = MoveInput.magnitude * _data.runMaxSpeed;
+            velocityMagnitude = PlayerBody.velocity.magnitude;
+            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel : _data.runDeccel;
+        }
+        else
+        {
+            targetSpeed = MoveInput.x * _data.runMaxSpeed;
+            velocityMagnitude = PlayerBody.velocity.x;
+            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel * _data.accelInAir : _data.runDeccel * _data.deccelInAir;
+        }
+
+        float speedDif = targetSpeed - velocityMagnitude;
+        
+        if (_data.doKeepRunMomentum && ((velocityMagnitude > targetSpeed && targetSpeed > 0.01f) || (velocityMagnitude < targetSpeed && targetSpeed < -0.01f)))
+        {
+            accelRate = 0;
+        }
+
+        float velPower;
+        if (Mathf.Abs(targetSpeed) < 0.01f)
+        {
+            velPower = _data.stopPower;
+        }
+        else if (Mathf.Abs(PlayerBody.velocity.x) > 0 && (Mathf.Sign(MoveInput.x) != Mathf.Sign(PlayerBody.velocity.x)))
+        {
+            velPower = _data.turnPower;
+        }
+        else
+        {
+            velPower = _data.accelPower;
+        }
+
+        // applies acceleration to speed difference, then is raised to a set power so the acceleration increases with higher speeds, finally multiplies by sign to preserve direction
+        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(MoveInput.x);
+        movement = Mathf.Lerp(velocityMagnitude, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
+
+        Vector2 force = movement * Vector2.right;
+        if (IsGrounded) { force = movement * -Vector2.Perpendicular(LastSurfaceNormal.normalized); }
+
+        PlayerBody.AddForce(force); */
+
+        Vector2 slopeVector = Vector2.right;
         float targetSpeed = MoveInput.x * _data.runMaxSpeed;
+        if (IsGrounded)
+        {
+            slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
+            //targetSpeed *= (Mathf.Abs(slopeVector.x) / (Mathf.Abs(slopeVector.x) + Mathf.Abs(slopeVector.y)));
+        }
         float speedDif = targetSpeed - PlayerBody.velocity.x;
 
         float accelRate;
@@ -131,8 +195,10 @@ public class PlayerStateMachine : MonoBehaviour
         float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
         movement = Mathf.Lerp(PlayerBody.velocity.x, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
 
-        // Possibly change this to account for sloped movement
-        PlayerBody.AddForce(movement * Vector2.right); // applies force force to rigidbody, multiplying by Vector2.right so that it only affects X axis 
+        Vector2 force = movement * slopeVector;
+        Debug.Log("Force: " + force + ", Movement: " + movement + ", Target Velocity: " + targetSpeed + ", X Velocity: " + PlayerBody.velocity.x);
+        PlayerBody.AddForce(force); // applies force force to rigidbody
+
 
     }
 
@@ -160,7 +226,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     IEnumerator delayedJumpCut()
     {
-        yield return new WaitForSeconds(_data.jumpBufferTime - (Time.timeSinceLevelLoad - LastPressedJumpTime));
+        yield return new WaitForSeconds(_data.jumpBufferTime - (Time.timeSinceLevelLoad - LastJumpPressTime));
         if (CanJumpCut())
         {
             JumpCut();
@@ -170,7 +236,7 @@ public class PlayerStateMachine : MonoBehaviour
     private void OnJumpEnd(InputAction.CallbackContext args)
     {
 
-        Debug.Log("JumpEnded");
+        //Debug.Log("JumpReleased");
         if (CanJumpCut())
         {
             JumpCut();
@@ -272,7 +338,7 @@ public class PlayerStateMachine : MonoBehaviour
         Controls = new GameControls();
 
         _states = new PlayerStateFactory(this);
-        _currentState = _states.Grounded();
+        _currentState = _states.Airborne();
         _currentState.EnterState();
 
         Controls.Player.Move.performed += OnMoveStart;

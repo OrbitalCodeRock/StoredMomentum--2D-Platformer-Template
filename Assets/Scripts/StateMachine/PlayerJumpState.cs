@@ -13,6 +13,7 @@ public class PlayerJumpState : PlayerBaseState
     {
         Ctx.IsJumping = true;
         Ctx.Jump();
+        Ctx.LastJumpTime = Time.timeSinceLevelLoad;
     }
     public override void UpdateState()
     {
