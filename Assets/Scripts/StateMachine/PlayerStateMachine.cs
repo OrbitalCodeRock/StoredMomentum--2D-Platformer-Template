@@ -6,9 +6,8 @@ using UnityEngine.InputSystem;
 public class PlayerStateMachine : MonoBehaviour
 {
 
-    // TODO: Make GroundCheckSize larger, add logic to disallow jumping on slopes that are too steep, add logic to move in directions parallel to slopes
+    // TODO: Make GroundCheckSize larger, add logic to disallow jumping on slopes that are too steep
     // Glitches: Double Jump boost thingy (You can tap jump once then jump again while running into a slope for a sort of mega jump).
-    // Moving on a slope causes you to run faster than you should, (try changing how the run function works)
 
 
     // State Variables
@@ -98,63 +97,17 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     private Coroutine delayedCut;
-    
-    // I think I need to change the general idea behind how this movement works. To me it seems imprecise/inaccurate.
+
+    // Credit to https://github.com/Dawnosaur/platformer-movement for general math behind acceleration and decceleration forces.
+    // Honestly, I don't feel like I fully grasp the logic behind how the magnitude of the movement force is calculated.
     public void Run(float lerpAmount)
     {
-        /*float targetSpeed;
-        float velocityMagnitude;
-        float accelRate;
-
-        if (IsGrounded)
-        {
-            targetSpeed = MoveInput.magnitude * _data.runMaxSpeed;
-            velocityMagnitude = PlayerBody.velocity.magnitude;
-            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel : _data.runDeccel;
-        }
-        else
-        {
-            targetSpeed = MoveInput.x * _data.runMaxSpeed;
-            velocityMagnitude = PlayerBody.velocity.x;
-            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel * _data.accelInAir : _data.runDeccel * _data.deccelInAir;
-        }
-
-        float speedDif = targetSpeed - velocityMagnitude;
-        
-        if (_data.doKeepRunMomentum && ((velocityMagnitude > targetSpeed && targetSpeed > 0.01f) || (velocityMagnitude < targetSpeed && targetSpeed < -0.01f)))
-        {
-            accelRate = 0;
-        }
-
-        float velPower;
-        if (Mathf.Abs(targetSpeed) < 0.01f)
-        {
-            velPower = _data.stopPower;
-        }
-        else if (Mathf.Abs(PlayerBody.velocity.x) > 0 && (Mathf.Sign(MoveInput.x) != Mathf.Sign(PlayerBody.velocity.x)))
-        {
-            velPower = _data.turnPower;
-        }
-        else
-        {
-            velPower = _data.accelPower;
-        }
-
-        // applies acceleration to speed difference, then is raised to a set power so the acceleration increases with higher speeds, finally multiplies by sign to preserve direction
-        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(MoveInput.x);
-        movement = Mathf.Lerp(velocityMagnitude, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
-
-        Vector2 force = movement * Vector2.right;
-        if (IsGrounded) { force = movement * -Vector2.Perpendicular(LastSurfaceNormal.normalized); }
-
-        PlayerBody.AddForce(force); */
-
         Vector2 slopeVector = Vector2.right;
         float targetSpeed = MoveInput.x * _data.runMaxSpeed;
         if (IsGrounded)
         {
             slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
-            //targetSpeed *= (Mathf.Abs(slopeVector.x) / (Mathf.Abs(slopeVector.x) + Mathf.Abs(slopeVector.y)));
+            targetSpeed *= slopeVector.x;
         }
         float speedDif = targetSpeed - PlayerBody.velocity.x;
 
