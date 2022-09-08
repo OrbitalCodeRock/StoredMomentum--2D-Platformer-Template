@@ -17,7 +17,7 @@ public class PlayerGroundedState : PlayerBaseState
         Ctx.IsGrounded = true;
         // Might need to change how often LastOnGroundTime is updated in the future
         Ctx.LastOnGroundTime = Time.timeSinceLevelLoad;
-        Debug.Log("Grounded!");
+        //Debug.Log("Grounded!");
     }
     public override void UpdateState()
     {
@@ -50,7 +50,7 @@ public class PlayerGroundedState : PlayerBaseState
         if(hit.normal != Ctx.LastSurfaceNormal)
         {
             Vector2 perp = -Vector2.Perpendicular(hit.normal);
-            Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
+            //Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
         }
         Ctx.LastSurfaceNormal = hit.normal;
         // add something to if statement to cancel out any upward velocity caused just by walking? This is meant to account for cases where you jump but never leave the ground  

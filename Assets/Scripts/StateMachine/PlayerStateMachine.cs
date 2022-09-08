@@ -99,7 +99,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Coroutine delayedCut;
 
     // Credit to https://github.com/Dawnosaur/platformer-movement for general math behind acceleration and decceleration forces.
-    // Honestly, I don't feel like I fully grasp the logic behind how the magnitude of the movement force is calculated.
+    // Honestly, I don't feel like I fully grasp the logic behind how the magnitude of the movement force is calculated. Maybe there is a more precise/different way to go about it.
     public void Run(float lerpAmount)
     {
         Vector2 slopeVector = Vector2.right;
@@ -149,7 +149,7 @@ public class PlayerStateMachine : MonoBehaviour
         movement = Mathf.Lerp(PlayerBody.velocity.x, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
 
         Vector2 force = movement * slopeVector;
-        Debug.Log("Force: " + force + ", Movement: " + movement + ", Target Velocity: " + targetSpeed + ", X Velocity: " + PlayerBody.velocity.x);
+        //Debug.Log("Force: " + force + ", Movement: " + movement + ", Target Velocity: " + targetSpeed + ", X Velocity: " + PlayerBody.velocity.x);
         PlayerBody.AddForce(force); // applies force force to rigidbody
 
 

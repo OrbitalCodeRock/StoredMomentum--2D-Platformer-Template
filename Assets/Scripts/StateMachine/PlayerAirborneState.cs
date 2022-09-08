@@ -47,7 +47,7 @@ public class PlayerAirborneState : PlayerBaseState
             if (hit.normal != Ctx.LastSurfaceNormal)
             {
                 Vector2 perp = -Vector2.Perpendicular(hit.normal);
-                Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
+                //Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
             }
             Ctx.LastSurfaceNormal = hit.normal;
             SwitchState(Factory.Grounded());
