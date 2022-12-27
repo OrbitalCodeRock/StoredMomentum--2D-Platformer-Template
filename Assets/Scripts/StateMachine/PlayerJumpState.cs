@@ -13,6 +13,8 @@ public class PlayerJumpState : PlayerBaseState
     {
         Ctx.IsJumping = true;
         Ctx.Jump();
+        // Start Jumping Rise animation
+        Ctx.PlayerAnimator.SetInteger("AnimationState", 2);
         Ctx.LastJumpTime = Time.timeSinceLevelLoad;
     }
     public override void UpdateState()

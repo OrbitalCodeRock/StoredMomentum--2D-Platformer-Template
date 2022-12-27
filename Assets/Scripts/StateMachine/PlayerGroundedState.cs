@@ -81,9 +81,13 @@ public class PlayerGroundedState : PlayerBaseState
     {
         if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
             SetSubState(Factory.Idle());
+            // Play Idle animation
+            Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
         }
         else{
             SetSubState(Factory.Walk());
+            // Play walking animation
+            Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
         }
     }
 }

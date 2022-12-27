@@ -32,6 +32,8 @@ public class PlayerAirborneState : PlayerBaseState
         if(Ctx.PlayerBody.velocity.y <= 0)
         {
             Ctx.IsFalling = true;
+            // Start Jumping Fall animation
+            Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
         }
         /*Collider2D col = Physics2D.OverlapCapsule(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Ctx.WalkableLayers);
         if (col && (Ctx.IsFalling || Time.timeSinceLevelLoad - airborneStartTime > minimumAirborneTime))

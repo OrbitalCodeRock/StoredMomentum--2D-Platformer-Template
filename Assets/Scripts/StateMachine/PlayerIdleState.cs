@@ -40,6 +40,8 @@ public class PlayerIdleState : PlayerBaseState
         if (Mathf.Abs(Ctx.MoveInput.x) > 0.01f)
         {
             SwitchState(Factory.Walk());
+            // Play walking animation
+            if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
             return true;
         }
         return false;

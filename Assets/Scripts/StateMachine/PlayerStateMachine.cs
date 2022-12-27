@@ -79,6 +79,9 @@ public class PlayerStateMachine : MonoBehaviour
     public float LastMomentumStoreTime { get; set; }
     public float LastMomentumReleaseTime { get; set; }
 
+    public Animator PlayerAnimator{ get; set; }
+    public SpriteRenderer PlayerSpriteRenderer {get; set;}
+
 
     private void OnMoveStart(InputAction.CallbackContext context)
     {
@@ -285,7 +288,8 @@ public class PlayerStateMachine : MonoBehaviour
     }
     private void Awake()
     {
-
+        PlayerAnimator = this.GetComponentInChildren<Animator>();
+        PlayerSpriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
         _objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
 
         Controls = new GameControls();
@@ -353,5 +357,10 @@ public class PlayerStateMachine : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         
+    }
+
+    public void FlipSprite(){
+        SpriteRenderer spriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 }

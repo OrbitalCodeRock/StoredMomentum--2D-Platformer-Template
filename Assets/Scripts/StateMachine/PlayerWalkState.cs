@@ -19,6 +19,12 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
+        if(Ctx.MoveInput.x > 0){
+            Ctx.PlayerSpriteRenderer.flipX = false;
+        }
+        else if(Ctx.MoveInput.x < 0){
+            Ctx.PlayerSpriteRenderer.flipX = true;
+        }
         if (!Ctx.ConserveMomentum)
         {
             Ctx.Run(1);
@@ -42,6 +48,10 @@ public class PlayerWalkState : PlayerBaseState
         if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
         {
             SwitchState(Factory.Idle());
+
+            // Play Idle Animation
+            //if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+            if(!Ctx.IsJumping)Ctx.StartCoroutine(IdleDelay(0.1f));
             return true;
         }
         return false;
@@ -49,5 +59,11 @@ public class PlayerWalkState : PlayerBaseState
     public override void InitializeSubState() 
     {
 
+    }
+    IEnumerator IdleDelay(float timeDelay){
+        yield return new WaitForSeconds(timeDelay);
+        if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
+            Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+        }
     }
 }
