@@ -19,3 +19,5 @@ Another note, the title for the game was originally called "Stored Momentum" bec
 store the player's current momentum and then release it as though it were a force onto yourself or other objects. I created an early version of this
 mechanic while working on the jam, but it was buggy and I felt the code was a bit unclean. Remanants of this code remain in the repository but I will likely
 remove it, note it out, or move it into its own branch.
+
+If you'd like to see some animations working with the character controller, check out the animation testing branch!
