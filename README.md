@@ -12,7 +12,7 @@ So far, the character controller supports the following features:
 - Jump Buffering: If you press the jump key and you can't currently jump, you will jump when possible (in a specified time interval after the press)
 - Physics interaction: Because the character controller is based on the unity physics system, you can interact with physics-based objects.
 
-I'd also like to give credit to iHeatGameDev: https://www.youtube.com/@iHeartGameDev for his tutorials on state-machines, which I used to
+I'd also like to give credit to iHeartGameDev: https://www.youtube.com/@iHeartGameDev for his tutorials on state-machines, which I used to
 help create the character controller statemachine.
 
 Another note, the title for the game was originally called "Stored Momentum" because I wanted to create a platformer where you could
