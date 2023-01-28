@@ -43,6 +43,8 @@ public class PlayerGroundedState : PlayerBaseState
         RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, 0.1f, Ctx.WalkableLayers);
         if (!hit.collider)
         {
+            // Start falling animation
+            if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
             SwitchState(Factory.Airborne());
             return;
         }
