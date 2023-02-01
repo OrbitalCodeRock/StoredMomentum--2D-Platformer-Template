@@ -50,8 +50,8 @@ public class PlayerWalkState : PlayerBaseState
             SwitchState(Factory.Idle());
 
             // Play Idle Animation
-            //if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
-            if(!Ctx.IsJumping)Ctx.StartCoroutine(IdleDelay(0.1f));
+            //if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.StartCoroutine(IdleDelay(0.1f));
             return true;
         }
         return false;

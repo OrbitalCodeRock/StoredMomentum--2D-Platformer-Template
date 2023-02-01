@@ -41,7 +41,7 @@ public class PlayerIdleState : PlayerBaseState
         {
             SwitchState(Factory.Walk());
             // Play walking animation
-            if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
             return true;
         }
         return false;

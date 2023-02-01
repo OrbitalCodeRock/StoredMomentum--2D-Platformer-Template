@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 676336f86cb0f824daa0812908417233, type: 3}
-  m_Name: DefaultPlayerData
+  m_Name: PlayerData(Animated)
   m_EditorClassIdentifier: 
-  gravityScale: 1.5
-  fallGravityMult: 1.35
-  quickFallGravityMult: 2.2
-  airDrag: 0.22
-  groundFriction: 0.55
+  gravityScale: 1.25
+  fallGravityMult: 1.175
+  quickFallGravityMult: 1.5
+  airDrag: 0.15
+  groundFriction: 0.275
   coyoteTime: 0.25
-  runMaxSpeed: 12
+  runMaxSpeed: 6.5
   runAccel: 9.3
   runDeccel: 15
-  airAccel: 0.65
-  airDeccel: 0.65
-  accelInAir: 1.05
-  deccelInAir: 1.23
-  accelPower: 1.05
-  stopPower: 1.23
-  turnPower: 1.13
-  jumpForce: 20
+  airAccel: 0.325
+  airDeccel: 0.325
+  accelInAir: 1.025
+  deccelInAir: 1.115
+  accelPower: 1.025
+  stopPower: 1.115
+  turnPower: 1.065
+  jumpForce: 12
   jumpCutMultiplier: 0.5
   jumpBufferTime: 0.2
   doKeepRunMomentum: 0

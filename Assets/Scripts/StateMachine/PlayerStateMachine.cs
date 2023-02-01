@@ -22,10 +22,12 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     private Camera _mainCamera;
 
-    private ObjectSelector _objectSelector;
+    // Unused code from when this project was originally a game jam game
 
-    public GameObject MomentumUI;
-    private GameObject _storedIndicator;
+    /* private ObjectSelector _objectSelector;
+        public GameObject MomentumUI;
+        private GameObject _storedIndicator;
+    */
 
     [SerializeField]
     private PlayerData _data;
@@ -36,6 +38,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public Transform GroundCheckPoint;
     public Vector2 GroundCheckSize;
+    public float GroundCheckDistance;
     [SerializeField]
     private LayerMask _walkableLayers;
 
@@ -219,16 +222,18 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    private void OnTimeSlow(InputAction.CallbackContext args)
-    {
-        Time.timeScale = 0.5f;
-        IsSlowingTime = true;
-        MomentumUI.SetActive(true);
-        _objectSelector.enabled = true;
-        _objectSelector.mouseClick.performed += OnClick;
-    }
+    // Unused code from when this project was originally a game jam game
+    /* private void OnTimeSlow(InputAction.CallbackContext args)
+     {
+         Time.timeScale = 0.5f;
+         IsSlowingTime = true;
+         MomentumUI.SetActive(true);
+         _objectSelector.enabled = true;
+         _objectSelector.mouseClick.performed += OnClick;
+     }*/
 
-    private void OnTimeRestore(InputAction.CallbackContext args)
+    // Unused code from when this project was originally a game jam game
+    /*private void OnTimeRestore(InputAction.CallbackContext args)
     {
         _objectSelector.mouseClick.performed -= OnClick;
         _objectSelector.Deselect();
@@ -251,17 +256,20 @@ public class PlayerStateMachine : MonoBehaviour
         MomentumUI.SetActive(false);
         Time.timeScale = 1f;
         IsSlowingTime = false;
-    }
-    private void ReleaseMomentum()
+    }*/
+
+    // Unused code from when this project was originally a game jam game
+    /*private void ReleaseMomentum()
     {
         float forceMagnitude = StoredVelocity.magnitude * StoredMass;
         Vector2 direction = ((Vector2)_mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - _targetBody.position).normalized;
         _targetBody.AddForce(forceMagnitude * direction, ForceMode2D.Impulse);
-    }
+    }*/
 
 
 
-    private void OnClick(InputAction.CallbackContext args)
+    // Unused code from when this project was originally a game jam game
+    /*private void OnClick(InputAction.CallbackContext args)
     {
         Rigidbody2D newBody = _objectSelector.SelectedObject?.GetComponent<Rigidbody2D>();
         switch (momentumManipulation)
@@ -285,12 +293,14 @@ public class PlayerStateMachine : MonoBehaviour
             _targetBody = newBody;
         }
 
-    }
+    }*/
     private void Awake()
     {
         PlayerAnimator = this.GetComponentInChildren<Animator>();
         PlayerSpriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
-        _objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
+
+        // Unused code from when this project was originally a game jam game
+        //_objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
 
         Controls = new GameControls();
 
@@ -304,6 +314,7 @@ public class PlayerStateMachine : MonoBehaviour
         Controls.Player.JumpStart.performed += OnJumpStart;
         Controls.Player.JumpEnd.performed += OnJumpEnd;
 
+        // Unused code from when this project was originally a game jam game
         /*Controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
         Controls.Player.TimeSlow.performed += OnTimeSlow;
         Controls.Player.TimeRestore.performed += OnTimeRestore;*/

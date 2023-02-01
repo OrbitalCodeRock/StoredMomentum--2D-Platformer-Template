@@ -40,11 +40,11 @@ public class PlayerGroundedState : PlayerBaseState
         }
         Ctx.Drag(Ctx.Data.groundFriction);*/
 
-        RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, 0.1f, Ctx.WalkableLayers);
+        RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, Ctx.GroundCheckDistance, Ctx.WalkableLayers);
         if (!hit.collider)
         {
             // Start falling animation
-            if(!Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
             SwitchState(Factory.Airborne());
             return;
         }
@@ -84,12 +84,12 @@ public class PlayerGroundedState : PlayerBaseState
         if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
             SetSubState(Factory.Idle());
             // Play Idle animation
-            Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
         }
         else{
             SetSubState(Factory.Walk());
             // Play walking animation
-            Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
+            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
         }
     }
 }
