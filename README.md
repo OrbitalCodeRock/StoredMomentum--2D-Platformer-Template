@@ -1,4 +1,4 @@
-# StoredMomentum--2D-Platformer
+# StoredMomentum--2D-Platformer-Template
 
 This project started off as a 2D Platformer game for a game jam but I ended up running out of time before I could get the game to a point where I wanted to submit it. Now, I've converted the project to a 2-D Platformer template which could serve as a general purpose tool for creating a platformer. So far, the project includes a working character controller that makes use of unity's built-in physics system. The controller has a variety of settings that can be tweaked to change the way controlling the player feels. 
 
