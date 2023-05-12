@@ -243,7 +243,6 @@ GameObject:
   - component: {fileID: 3354253785857476021}
   - component: {fileID: 3354253785857476026}
   - component: {fileID: 3354253785857476027}
-  - component: {fileID: 3354253785857476022}
   m_Layer: 0
   m_Name: Player(Animated))
   m_TagString: Untagged
@@ -281,7 +280,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainCamera: {fileID: 0}
-  MomentumUI: {fileID: 0}
   _data: {fileID: 11400000, guid: 6120ffef8dd25984d93a961d07b13b9f, type: 2}
   GroundCheckPoint: {fileID: 3354253784927726274}
   GroundCheckSize: {x: 0.4925, y: 0.5}
@@ -329,16 +327,3 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &3354253785857476022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3354253785857476028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3623d273207ca034bbb77be0b09e23d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hoverIndicator: {fileID: 3354253785641192647}

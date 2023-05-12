@@ -22,13 +22,6 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     private Camera _mainCamera;
 
-    // Unused code from when this project was originally a game jam game
-
-    /* private ObjectSelector _objectSelector;
-        public GameObject MomentumUI;
-        private GameObject _storedIndicator;
-    */
-
     [SerializeField]
     private PlayerData _data;
 
@@ -44,20 +37,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public LayerMask WalkableLayers { get { return _walkableLayers; } set { _walkableLayers = value; } }
 
-    public enum ManipulationState
-    {
-        Store,
-        Release
-    }
-
-    public ManipulationState momentumManipulation;
-
-    public bool IsSlowingTime { get; private set; }
-
     public Vector2 MoveInput { get; private set; }
-
-    public Vector2 StoredVelocity { get; private set; }
-    public float StoredMass { get; private set; }
 
     public float LastOnGroundTime { get; set; }
 
@@ -72,15 +52,14 @@ public class PlayerStateMachine : MonoBehaviour
 
     public bool IsFalling { get; set; }
 
+    public bool ConserveMomentum { get; set; }
+
     public Collider2D LastGroundedSurface { get; set; }
 
     public Vector2 LastSurfaceNormal { get; set; }
 
-    public bool ConserveMomentum { get; set; }
     public float LastJumpPressTime { get; set; }
     public float LastJumpTime { get; set; }
-    public float LastMomentumStoreTime { get; set; }
-    public float LastMomentumReleaseTime { get; set; }
 
     public Animator PlayerAnimator{ get; set; }
     public SpriteRenderer PlayerSpriteRenderer {get; set;}
@@ -103,6 +82,33 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     private Coroutine delayedCut;
+
+
+    public void Run()
+    {
+
+
+        // Get a vector parallell to the slope the surface the player is standing on and figure out how fast the player wants to run
+        Vector2 slopeVector = Vector2.right;
+        float targetSpeed = MoveInput.x * _data.runMaxSpeed;
+        if (IsGrounded)
+        {
+            slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
+            targetSpeed *= slopeVector.x;
+        }
+
+        // Have different cases for: The player wanting to turn around, The player wanting to move faster, The player wanting to slow down.
+        // If the player wants to continue moving in the same direction.
+        if (Mathf.Sign(PlayerBody.velocity.x) == Mathf.Sign(MoveInput.x))
+        {
+
+        }
+        else // If the player wants to turn around and move in the opposite direction.
+        {
+
+        }
+
+    }
 
     // Credit to https://github.com/Dawnosaur/platformer-movement for general math behind acceleration and decceleration forces.
     // Honestly, I don't feel like I fully grasp the logic behind how the magnitude of the movement force is calculated. Maybe there is a more precise/different way to go about it.
@@ -157,8 +163,6 @@ public class PlayerStateMachine : MonoBehaviour
         Vector2 force = movement * slopeVector;
         //Debug.Log("Force: " + force + ", Movement: " + movement + ", Target Velocity: " + targetSpeed + ", X Velocity: " + PlayerBody.velocity.x);
         PlayerBody.AddForce(force); // applies force force to rigidbody
-
-
     }
 
     public void Jump()
@@ -207,100 +211,10 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    private void OnMomentumManipulate(InputAction.CallbackContext args)
-    {
-        // Add an if statement to limit action spamming
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                StoredVelocity = PlayerBody.velocity;
-                _targetBody = PlayerBody;
-                StoredMass = PlayerBody.mass;
-                break;
-            case ManipulationState.Release:
-                break;
-        }
-    }
-
-    // Unused code from when this project was originally a game jam game
-    /* private void OnTimeSlow(InputAction.CallbackContext args)
-     {
-         Time.timeScale = 0.5f;
-         IsSlowingTime = true;
-         MomentumUI.SetActive(true);
-         _objectSelector.enabled = true;
-         _objectSelector.mouseClick.performed += OnClick;
-     }*/
-
-    // Unused code from when this project was originally a game jam game
-    /*private void OnTimeRestore(InputAction.CallbackContext args)
-    {
-        _objectSelector.mouseClick.performed -= OnClick;
-        _objectSelector.Deselect();
-        _objectSelector.enabled = false;
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                StoredVelocity = _targetBody.velocity;
-                StoredMass = _targetBody.mass;
-                momentumManipulation = ManipulationState.Release;
-                LastMomentumStoreTime = Time.timeSinceLevelLoad;
-                break;
-            case ManipulationState.Release:
-                ConserveMomentum = true;
-                ReleaseMomentum();
-                momentumManipulation = ManipulationState.Store;
-                LastMomentumReleaseTime = Time.timeSinceLevelLoad;
-                break;
-        }
-        MomentumUI.SetActive(false);
-        Time.timeScale = 1f;
-        IsSlowingTime = false;
-    }*/
-
-    // Unused code from when this project was originally a game jam game
-    /*private void ReleaseMomentum()
-    {
-        float forceMagnitude = StoredVelocity.magnitude * StoredMass;
-        Vector2 direction = ((Vector2)_mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - _targetBody.position).normalized;
-        _targetBody.AddForce(forceMagnitude * direction, ForceMode2D.Impulse);
-    }*/
-
-
-
-    // Unused code from when this project was originally a game jam game
-    /*private void OnClick(InputAction.CallbackContext args)
-    {
-        Rigidbody2D newBody = _objectSelector.SelectedObject?.GetComponent<Rigidbody2D>();
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                if (newBody != null)
-                {
-                    StoredVelocity = newBody.velocity;
-                    StoredMass = newBody.mass;
-                    momentumManipulation = ManipulationState.Release;
-                }
-                break;
-            case ManipulationState.Release:
-                // Restore the Indicator of the last selected object
-                // store the Indicator of the currently selected object
-                // replace with new Indicator that shows release trajectory
-                break;
-        }
-        if (newBody != null)
-        {
-            _targetBody = newBody;
-        }
-
-    }*/
     private void Awake()
     {
         PlayerAnimator = this.GetComponentInChildren<Animator>();
         PlayerSpriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
-
-        // Unused code from when this project was originally a game jam game
-        //_objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
 
         Controls = new GameControls();
 
@@ -313,11 +227,6 @@ public class PlayerStateMachine : MonoBehaviour
 
         Controls.Player.JumpStart.performed += OnJumpStart;
         Controls.Player.JumpEnd.performed += OnJumpEnd;
-
-        // Unused code from when this project was originally a game jam game
-        /*Controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
-        Controls.Player.TimeSlow.performed += OnTimeSlow;
-        Controls.Player.TimeRestore.performed += OnTimeRestore;*/
 
         PlayerBody = this.GetComponent<Rigidbody2D>();
         _targetBody = PlayerBody;

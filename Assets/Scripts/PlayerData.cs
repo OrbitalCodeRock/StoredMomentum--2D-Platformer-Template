@@ -14,6 +14,14 @@ public class PlayerData : ScriptableObject
 
     public float coyoteTime; // Grace period to jump after walking off a surface.
 
+    // A curve meant to be used for accelerating the player.
+    // I'm thinking that this curve will be evaluated based on the velocity of the player.
+    [SerializeField]
+    private AnimationCurve AccelerationCurve;
+
+    [SerializeField]
+    private float maxRunSpeed;
+
     public float runMaxSpeed;
     public float runAccel;
     public float runDeccel;
@@ -32,4 +40,14 @@ public class PlayerData : ScriptableObject
     public float jumpBufferTime; // Allows the player to buffer a jump input.
 
     public bool doKeepRunMomentum;
+
+    public AnimationCurve getAccelerationCurve()
+    {
+        return AccelerationCurve;
+    }
+
+    public float getMaxRunSpeed()
+    {
+        return maxRunSpeed;
+    }
 }
