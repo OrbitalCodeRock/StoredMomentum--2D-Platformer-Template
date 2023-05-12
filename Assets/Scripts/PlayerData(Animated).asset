@@ -18,6 +18,32 @@ MonoBehaviour:
   airDrag: 0.15
   groundFriction: 0.275
   coyoteTime: 0.25
+  AccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxRunSpeed: 6.5
+  maxRunAccel: 9.3
   runMaxSpeed: 6.5
   runAccel: 9.3
   runDeccel: 15

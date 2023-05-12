@@ -25,18 +25,7 @@ public class PlayerWalkState : PlayerBaseState
         else if(Ctx.MoveInput.x < 0){
             Ctx.PlayerSpriteRenderer.flipX = true;
         }
-        if (!Ctx.ConserveMomentum)
-        {
-            Ctx.Run(1);
-        }
-        else if (Mathf.Sign(Ctx.MoveInput.x) != Mathf.Sign(Ctx.PlayerBody.velocity.x))
-        {
-            Ctx.Run(0.25f);
-        }
-        if (Mathf.Abs(Ctx.PlayerBody.velocity.x) < Ctx.Data.runMaxSpeed)
-        {
-            Ctx.ConserveMomentum = false;
-        }
+        Ctx.Run();
     }
 
     public override void ExitState()

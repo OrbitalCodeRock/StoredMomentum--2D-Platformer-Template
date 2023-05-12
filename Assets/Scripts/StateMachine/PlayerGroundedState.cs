@@ -38,7 +38,7 @@ public class PlayerGroundedState : PlayerBaseState
         {
             Ctx.IsJumping = false;
         }
-        Ctx.Drag(Ctx.Data.groundFriction);*/
+       */
 
         RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, Ctx.GroundCheckDistance, Ctx.WalkableLayers);
         if (!hit.collider)
@@ -60,7 +60,6 @@ public class PlayerGroundedState : PlayerBaseState
         {
             Ctx.IsJumping = false;
         }
-        Ctx.Drag(Ctx.Data.groundFriction);
     }
 
     public override void ExitState()
