@@ -26,20 +26,6 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-        /*Collider2D col = Physics2D.OverlapCapsule(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Ctx.WalkableLayers);
-        if (!col)
-        {
-            SwitchState(Factory.Airborne());
-            return;
-        }
-        Ctx.LastGroundedSurface = col;
-        // add something to if statement to cancel out any upward velocity caused just by walking? This is meant to account for cases where you jump but never leave the ground  
-        if(Ctx.PlayerBody.velocity.y <= 0 || Time.timeSinceLevelLoad - Ctx.LastOnGroundTime > Ctx.Data.jumpBufferTime)
-        {
-            Ctx.IsJumping = false;
-        }
-       */
-
         RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, Ctx.GroundCheckDistance, Ctx.WalkableLayers);
         if (!hit.collider)
         {
@@ -60,6 +46,7 @@ public class PlayerGroundedState : PlayerBaseState
         {
             Ctx.IsJumping = false;
         }
+        Ctx.applyLinearDrag();
     }
 
     public override void ExitState()

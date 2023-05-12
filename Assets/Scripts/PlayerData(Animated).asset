@@ -15,10 +15,8 @@ MonoBehaviour:
   gravityScale: 1.25
   fallGravityMult: 1.175
   quickFallGravityMult: 1.5
-  airDrag: 0.15
-  groundFriction: 0.275
   coyoteTime: 0.25
-  AccelerationCurve:
+  runAccelerationCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -42,19 +40,59 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  maxRunAcceleration: 15
+  turnAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxTurnAcceleration: 30
+  stopAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxStopAcceleration: 7.5
   maxRunSpeed: 6.5
-  maxRunAccel: 9.3
-  runMaxSpeed: 6.5
-  runAccel: 9.3
-  runDeccel: 15
-  airAccel: 0.325
-  airDeccel: 0.325
-  accelInAir: 1.025
-  deccelInAir: 1.115
-  accelPower: 1.025
-  stopPower: 1.115
-  turnPower: 1.065
+  linearDragCoefficent: 0.98
   jumpForce: 12
   jumpCutMultiplier: 0.5
   jumpBufferTime: 0.2
-  doKeepRunMomentum: 0

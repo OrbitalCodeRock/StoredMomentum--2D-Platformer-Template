@@ -30,6 +30,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Transform GroundCheckPoint;
     public Vector2 GroundCheckSize;
     public float GroundCheckDistance;
+
     [SerializeField]
     private LayerMask _walkableLayers;
 
@@ -49,8 +50,6 @@ public class PlayerStateMachine : MonoBehaviour
     public bool IsJumping { get { return isJumping; } set { isJumping = value; } }
 
     public bool IsFalling { get; set; }
-
-    public bool ConserveMomentum { get; set; }
 
     public Collider2D LastGroundedSurface { get; set; }
 
@@ -98,29 +97,78 @@ public class PlayerStateMachine : MonoBehaviour
         // If the player wants to continue moving in the same direction.
         if (Mathf.Sign(PlayerBody.velocity.x) == Mathf.Sign(MoveInput.x) || Mathf.Abs(PlayerBody.velocity.x) < 0.01f)
         {
-            AnimationCurve accelCurve = Data.getAccelerationCurve();
-            float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
-
-            // For now, if the player is already running faster than max speed, do nothing.
-            if(speedPercentage > 1 || Mathf.Abs(PlayerBody.velocity.x) > targetSpeed)
-            {
-                return;
-            }
-            else
-            {
-                float targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxRunAccel();
-                float forceMagnitude = PlayerBody.mass * targetAccel * Mathf.Sign(MoveInput.x);
-                Vector2 forceToApply = forceMagnitude * slopeVector;
-                PlayerBody.AddForce(forceToApply);
-            }
-
+            getUpToSpeed(targetSpeed, slopeVector);
         }
         else // If the player wants to turn around and move in the opposite direction.
         {
-            //For now, just kill the current velocity of the player.
-            PlayerBody.velocity = new Vector2(0f, PlayerBody.velocity.y);
+            turnAround(slopeVector);
         }
 
+    }
+
+    private void getUpToSpeed(float targetSpeed, Vector2 parallelSurfaceVector)
+    {
+        AnimationCurve accelCurve = Data.getRunAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+
+        // For now, if the player is already running faster than max speed, do nothing.
+        if (speedPercentage > 1 || Mathf.Abs(PlayerBody.velocity.x) > targetSpeed)
+        {
+            return;
+        }
+        else
+        {
+            float targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxRunAcceleration();
+            float forceMagnitude = PlayerBody.mass * targetAccel * Mathf.Sign(MoveInput.x);
+            PlayerBody.AddForce(forceMagnitude * parallelSurfaceVector);
+        }
+    }
+
+    private void turnAround(Vector2 parallelSurfaceVector)
+    {
+        AnimationCurve accelCurve = Data.getTurnAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+        float targetAccel;
+
+        if (speedPercentage < 1) targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxTurnAcceleration();
+        else targetAccel = targetAccel = accelCurve.Evaluate(1) * _data.getMaxTurnAcceleration();
+
+        float forceMagnitude = PlayerBody.mass * targetAccel * -Mathf.Sign(PlayerBody.velocity.x);
+        PlayerBody.AddForce(forceMagnitude * parallelSurfaceVector);
+    }
+
+    public void comeToStop()
+    {
+        if(Mathf.Abs(PlayerBody.velocity.x) < 0.1)
+        {
+            return;
+        }
+
+        Vector2 slopeVector = Vector2.right;
+        if (IsGrounded)
+        {
+            slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
+        }
+
+        AnimationCurve accelCurve = Data.getStopAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+        float targetAccel;
+
+        if (speedPercentage < 1) targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxStopAcceleration();
+        else targetAccel = targetAccel = accelCurve.Evaluate(1) * _data.getMaxStopAcceleration();
+
+        float forceMagnitude = PlayerBody.mass * targetAccel * -Mathf.Sign(PlayerBody.velocity.x);
+        PlayerBody.AddForce(forceMagnitude * slopeVector);
+    }
+
+    public void applyLinearDrag()
+    {
+        if (Mathf.Abs(PlayerBody.velocity.x) < 0.01f) PlayerBody.velocity = new Vector2(0, PlayerBody.velocity.y);
+        else PlayerBody.AddForce(-PlayerBody.velocity * _data.getLinearDragCoefficent() * PlayerBody.mass);
+    }
+    public void applyLinearDrag(float dragCoefficent)
+    {
+        PlayerBody.AddForce(-PlayerBody.velocity * dragCoefficent);
     }
 
     public void Jump()

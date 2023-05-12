@@ -12,8 +12,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void EnterState()
     {
-        //For now, just kill the current velocity of the player.
-        Ctx.PlayerBody.velocity = new Vector2(0f, Ctx.PlayerBody.velocity.y);
+        
     }
     public override void UpdateState()
     {
@@ -22,7 +21,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-
+       Ctx.comeToStop();
     }
 
     public override void ExitState()
