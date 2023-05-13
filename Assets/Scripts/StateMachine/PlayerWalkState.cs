@@ -19,18 +19,13 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-        if (!Ctx.ConserveMomentum)
-        {
-            Ctx.Run(1);
+        if(Ctx.MoveInput.x > 0){
+            Ctx.PlayerSpriteRenderer.flipX = false;
         }
-        else if (Mathf.Sign(Ctx.MoveInput.x) != Mathf.Sign(Ctx.PlayerBody.velocity.x))
-        {
-            Ctx.Run(0.25f);
+        else if(Ctx.MoveInput.x < 0){
+            Ctx.PlayerSpriteRenderer.flipX = true;
         }
-        if (Mathf.Abs(Ctx.PlayerBody.velocity.x) < Ctx.Data.runMaxSpeed)
-        {
-            Ctx.ConserveMomentum = false;
-        }
+        Ctx.Run();
     }
 
     public override void ExitState()
@@ -42,6 +37,10 @@ public class PlayerWalkState : PlayerBaseState
         if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
         {
             SwitchState(Factory.Idle());
+
+            // Play Idle Animation
+            //if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.StartCoroutine(IdleDelay(0.1f));
             return true;
         }
         return false;
@@ -49,5 +48,11 @@ public class PlayerWalkState : PlayerBaseState
     public override void InitializeSubState() 
     {
 
+    }
+    IEnumerator IdleDelay(float timeDelay){
+        yield return new WaitForSeconds(timeDelay);
+        if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
+            Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+        }
     }
 }

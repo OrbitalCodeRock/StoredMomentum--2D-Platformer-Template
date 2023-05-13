@@ -32,14 +32,9 @@ public class PlayerAirborneState : PlayerBaseState
         if(Ctx.PlayerBody.velocity.y <= 0)
         {
             Ctx.IsFalling = true;
+            // Start Jumping Fall animation
+            if(Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
         }
-        /*Collider2D col = Physics2D.OverlapCapsule(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Ctx.WalkableLayers);
-        if (col && (Ctx.IsFalling || Time.timeSinceLevelLoad - airborneStartTime > minimumAirborneTime))
-        {
-            Ctx.LastGroundedSurface = col;
-            SwitchState(Factory.Grounded());
-            return;
-        }*/
         RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, 0.1f, Ctx.WalkableLayers);
         if (hit.collider && (Ctx.IsFalling || Time.timeSinceLevelLoad - airborneStartTime > minimumAirborneTime))
         {
@@ -52,10 +47,6 @@ public class PlayerAirborneState : PlayerBaseState
             Ctx.LastSurfaceNormal = hit.normal;
             SwitchState(Factory.Grounded());
             return;
-        }
-        else
-        {
-            Ctx.Drag(Ctx.Data.airDrag);
         }
         if (Ctx.PlayerBody.velocity.y >= 0)
         {

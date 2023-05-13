@@ -22,39 +22,21 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     private Camera _mainCamera;
 
-    private ObjectSelector _objectSelector;
-
-    public GameObject MomentumUI;
-    private GameObject _storedIndicator;
-
     [SerializeField]
     private PlayerData _data;
-
-    private Rigidbody2D _targetBody;
 
     public Rigidbody2D PlayerBody { get; private set; }
 
     public Transform GroundCheckPoint;
     public Vector2 GroundCheckSize;
+    public float GroundCheckDistance;
+
     [SerializeField]
     private LayerMask _walkableLayers;
 
     public LayerMask WalkableLayers { get { return _walkableLayers; } set { _walkableLayers = value; } }
 
-    public enum ManipulationState
-    {
-        Store,
-        Release
-    }
-
-    public ManipulationState momentumManipulation;
-
-    public bool IsSlowingTime { get; private set; }
-
     public Vector2 MoveInput { get; private set; }
-
-    public Vector2 StoredVelocity { get; private set; }
-    public float StoredMass { get; private set; }
 
     public float LastOnGroundTime { get; set; }
 
@@ -73,11 +55,11 @@ public class PlayerStateMachine : MonoBehaviour
 
     public Vector2 LastSurfaceNormal { get; set; }
 
-    public bool ConserveMomentum { get; set; }
     public float LastJumpPressTime { get; set; }
     public float LastJumpTime { get; set; }
-    public float LastMomentumStoreTime { get; set; }
-    public float LastMomentumReleaseTime { get; set; }
+
+    public Animator PlayerAnimator{ get; set; }
+    public SpriteRenderer PlayerSpriteRenderer {get; set;}
 
 
     private void OnMoveStart(InputAction.CallbackContext context)
@@ -98,61 +80,96 @@ public class PlayerStateMachine : MonoBehaviour
 
     private Coroutine delayedCut;
 
-    // Credit to https://github.com/Dawnosaur/platformer-movement for general math behind acceleration and decceleration forces.
-    // Honestly, I don't feel like I fully grasp the logic behind how the magnitude of the movement force is calculated. Maybe there is a more precise/different way to go about it.
-    public void Run(float lerpAmount)
+
+    public void Run()
     {
+        // Get a vector parallel to the slope the surface the player is standing on and figure out how fast the player wants to run
+        // Here we are only concerned with horizontal speed, because vertical speed would also include speed from jumps.
         Vector2 slopeVector = Vector2.right;
-        float targetSpeed = MoveInput.x * _data.runMaxSpeed;
+        float targetSpeed = Mathf.Abs(MoveInput.x) * _data.getMaxRunSpeed();
         if (IsGrounded)
         {
             slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
             targetSpeed *= slopeVector.x;
         }
-        float speedDif = targetSpeed - PlayerBody.velocity.x;
 
-        float accelRate;
-
-        if (_data.doKeepRunMomentum && ((PlayerBody.velocity.x > targetSpeed && targetSpeed > 0.01f) || (PlayerBody.velocity.x < targetSpeed && targetSpeed < -0.01f)))
+        // Have different cases for: The player wanting to turn around, The player wanting to move faster, The player wanting to slow down.
+        // If the player wants to continue moving in the same direction.
+        if (Mathf.Sign(PlayerBody.velocity.x) == Mathf.Sign(MoveInput.x) || Mathf.Abs(PlayerBody.velocity.x) < 0.01f)
         {
-            accelRate = 0;
+            getUpToSpeed(targetSpeed, slopeVector);
+        }
+        else // If the player wants to turn around and move in the opposite direction.
+        {
+            turnAround(slopeVector);
+        }
+
+    }
+
+    private void getUpToSpeed(float targetSpeed, Vector2 parallelSurfaceVector)
+    {
+        AnimationCurve accelCurve = Data.getRunAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+
+        // For now, if the player is already running faster than max speed, do nothing.
+        if (speedPercentage > 1 || Mathf.Abs(PlayerBody.velocity.x) > targetSpeed)
+        {
+            return;
         }
         else
         {
-            if (IsGrounded)
-            {
-                // If the target speed is greater than a minimum (0.01), use running acceleration. Otherwise, decelerate.
-                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel : _data.runDeccel;
-            }
-            else
-            {
-                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? _data.runAccel * _data.accelInAir : _data.runDeccel * _data.deccelInAir;
-            }
+            float targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxRunAcceleration();
+            float forceMagnitude = PlayerBody.mass * targetAccel * Mathf.Sign(MoveInput.x);
+            PlayerBody.AddForce(forceMagnitude * parallelSurfaceVector);
         }
+    }
 
-        float velPower;
-        if (Mathf.Abs(targetSpeed) < 0.01f)
+    private void turnAround(Vector2 parallelSurfaceVector)
+    {
+        AnimationCurve accelCurve = Data.getTurnAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+        float targetAccel;
+
+        if (speedPercentage < 1) targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxTurnAcceleration();
+        else targetAccel = targetAccel = accelCurve.Evaluate(1) * _data.getMaxTurnAcceleration();
+
+        float forceMagnitude = PlayerBody.mass * targetAccel * -Mathf.Sign(PlayerBody.velocity.x);
+        PlayerBody.AddForce(forceMagnitude * parallelSurfaceVector);
+    }
+
+    public void comeToStop()
+    {
+        if(Mathf.Abs(PlayerBody.velocity.x) < 0.1f)
         {
-            velPower = _data.stopPower;
+            PlayerBody.velocity = new Vector2(0, PlayerBody.velocity.y);
+            return;
         }
-        else if (Mathf.Abs(PlayerBody.velocity.x) > 0 && (Mathf.Sign(targetSpeed) != Mathf.Sign(PlayerBody.velocity.x)))
+
+        Vector2 slopeVector = Vector2.right;
+        if (IsGrounded)
         {
-            velPower = _data.turnPower;
-        }
-        else
-        {
-            velPower = _data.accelPower;
+            slopeVector = -Vector2.Perpendicular(LastSurfaceNormal).normalized;
         }
 
-        // applies acceleration to speed difference, then is raised to a set power so the acceleration increases with higher speeds, finally multiplies by sign to preserve direction
-        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
-        movement = Mathf.Lerp(PlayerBody.velocity.x, movement, lerpAmount); // lerp so that we can prevent the Run from immediately slowing the player down, in some situations eg wall jump, dash 
+        AnimationCurve accelCurve = Data.getStopAccelerationCurve();
+        float speedPercentage = Mathf.Abs(PlayerBody.velocity.x) / _data.getMaxRunSpeed();
+        float targetAccel;
 
-        Vector2 force = movement * slopeVector;
-        //Debug.Log("Force: " + force + ", Movement: " + movement + ", Target Velocity: " + targetSpeed + ", X Velocity: " + PlayerBody.velocity.x);
-        PlayerBody.AddForce(force); // applies force force to rigidbody
+        if (speedPercentage < 1) targetAccel = accelCurve.Evaluate(speedPercentage) * _data.getMaxStopAcceleration();
+        else targetAccel = targetAccel = accelCurve.Evaluate(1) * _data.getMaxStopAcceleration();
 
+        float forceMagnitude = PlayerBody.mass * targetAccel * -Mathf.Sign(PlayerBody.velocity.x);
+        PlayerBody.AddForce(forceMagnitude * slopeVector);
+    }
 
+    public void applyLinearDrag()
+    {
+        if (Mathf.Abs(PlayerBody.velocity.x) < 0.1f) return;
+        else PlayerBody.AddForce(-PlayerBody.velocity * _data.getLinearDragCoefficent() * PlayerBody.mass);
+    }
+    public void applyLinearDrag(float dragCoefficent)
+    {
+        PlayerBody.AddForce(-PlayerBody.velocity * dragCoefficent);
     }
 
     public void Jump()
@@ -201,92 +218,11 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    private void OnMomentumManipulate(InputAction.CallbackContext args)
-    {
-        // Add an if statement to limit action spamming
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                StoredVelocity = PlayerBody.velocity;
-                _targetBody = PlayerBody;
-                StoredMass = PlayerBody.mass;
-                break;
-            case ManipulationState.Release:
-                break;
-        }
-    }
-
-    private void OnTimeSlow(InputAction.CallbackContext args)
-    {
-        Time.timeScale = 0.5f;
-        IsSlowingTime = true;
-        MomentumUI.SetActive(true);
-        _objectSelector.enabled = true;
-        _objectSelector.mouseClick.performed += OnClick;
-    }
-
-    private void OnTimeRestore(InputAction.CallbackContext args)
-    {
-        _objectSelector.mouseClick.performed -= OnClick;
-        _objectSelector.Deselect();
-        _objectSelector.enabled = false;
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                StoredVelocity = _targetBody.velocity;
-                StoredMass = _targetBody.mass;
-                momentumManipulation = ManipulationState.Release;
-                LastMomentumStoreTime = Time.timeSinceLevelLoad;
-                break;
-            case ManipulationState.Release:
-                ConserveMomentum = true;
-                ReleaseMomentum();
-                momentumManipulation = ManipulationState.Store;
-                LastMomentumReleaseTime = Time.timeSinceLevelLoad;
-                break;
-        }
-        MomentumUI.SetActive(false);
-        Time.timeScale = 1f;
-        IsSlowingTime = false;
-    }
-    private void ReleaseMomentum()
-    {
-        float forceMagnitude = StoredVelocity.magnitude * StoredMass;
-        Vector2 direction = ((Vector2)_mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - _targetBody.position).normalized;
-        _targetBody.AddForce(forceMagnitude * direction, ForceMode2D.Impulse);
-    }
-
-
-
-    private void OnClick(InputAction.CallbackContext args)
-    {
-        Rigidbody2D newBody = _objectSelector.SelectedObject?.GetComponent<Rigidbody2D>();
-        switch (momentumManipulation)
-        {
-            case ManipulationState.Store:
-                if (newBody != null)
-                {
-                    StoredVelocity = newBody.velocity;
-                    StoredMass = newBody.mass;
-                    momentumManipulation = ManipulationState.Release;
-                }
-                break;
-            case ManipulationState.Release:
-                // Restore the Indicator of the last selected object
-                // store the Indicator of the currently selected object
-                // replace with new Indicator that shows release trajectory
-                break;
-        }
-        if (newBody != null)
-        {
-            _targetBody = newBody;
-        }
-
-    }
     private void Awake()
     {
-
-        _objectSelector = GameObject.Find("CameraCanvas").GetComponent<ObjectSelector>();
+        PlayerAnimator = this.GetComponentInChildren<Animator>();
+        PlayerSpriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
+        PlayerBody = this.GetComponent<Rigidbody2D>();
 
         Controls = new GameControls();
 
@@ -299,13 +235,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         Controls.Player.JumpStart.performed += OnJumpStart;
         Controls.Player.JumpEnd.performed += OnJumpEnd;
-
-        /*Controls.Player.MomentumManipulate.performed += OnMomentumManipulate;
-        Controls.Player.TimeSlow.performed += OnTimeSlow;
-        Controls.Player.TimeRestore.performed += OnTimeRestore;*/
-
-        PlayerBody = this.GetComponent<Rigidbody2D>();
-        _targetBody = PlayerBody;
+        
     }
     private void OnEnable()
     {
@@ -320,17 +250,6 @@ public class PlayerStateMachine : MonoBehaviour
     public void SetGravityScale(float scale)
     {
         PlayerBody.gravityScale = scale;
-    }
-
-    public void Drag(float amount)
-    {
-        Vector2 force = amount * PlayerBody.velocity.normalized;
-        force.x = Mathf.Min(Mathf.Abs(PlayerBody.velocity.x), Mathf.Abs(force.x));
-        force.y = Mathf.Min(Mathf.Abs(PlayerBody.velocity.y), Mathf.Abs(force.y));
-        force.x *= Mathf.Sign(PlayerBody.velocity.x); //finds direction to apply force
-        force.y *= Mathf.Sign(PlayerBody.velocity.y);
-
-        PlayerBody.AddForce(-force, ForceMode2D.Impulse);
     }
 
     // Start is called before the first frame update
@@ -353,5 +272,10 @@ public class PlayerStateMachine : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         
+    }
+
+    public void FlipSprite(){
+        SpriteRenderer spriteRenderer = this.GetComponentInChildren<SpriteRenderer>();
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 }

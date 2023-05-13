@@ -12,7 +12,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void EnterState()
     {
-
+        
     }
     public override void UpdateState()
     {
@@ -21,14 +21,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-        if (!Ctx.ConserveMomentum)
-        {
-            Ctx.Run(1);
-        }
-        if (Mathf.Abs(Ctx.PlayerBody.velocity.x) < Ctx.Data.runMaxSpeed)
-        {
-            Ctx.ConserveMomentum = false;
-        }
+       Ctx.comeToStop();
     }
 
     public override void ExitState()
@@ -40,6 +33,8 @@ public class PlayerIdleState : PlayerBaseState
         if (Mathf.Abs(Ctx.MoveInput.x) > 0.01f)
         {
             SwitchState(Factory.Walk());
+            // Play walking animation
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
             return true;
         }
         return false;

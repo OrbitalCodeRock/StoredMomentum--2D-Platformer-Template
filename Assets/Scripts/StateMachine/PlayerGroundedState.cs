@@ -26,23 +26,11 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-        /*Collider2D col = Physics2D.OverlapCapsule(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Ctx.WalkableLayers);
-        if (!col)
-        {
-            SwitchState(Factory.Airborne());
-            return;
-        }
-        Ctx.LastGroundedSurface = col;
-        // add something to if statement to cancel out any upward velocity caused just by walking? This is meant to account for cases where you jump but never leave the ground  
-        if(Ctx.PlayerBody.velocity.y <= 0 || Time.timeSinceLevelLoad - Ctx.LastOnGroundTime > Ctx.Data.jumpBufferTime)
-        {
-            Ctx.IsJumping = false;
-        }
-        Ctx.Drag(Ctx.Data.groundFriction);*/
-
-        RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, 0.1f, Ctx.WalkableLayers);
+        RaycastHit2D hit = Physics2D.CapsuleCast(Ctx.GroundCheckPoint.position, Ctx.GroundCheckSize, CapsuleDirection2D.Vertical, 0, Vector2.down, Ctx.GroundCheckDistance, Ctx.WalkableLayers);
         if (!hit.collider)
         {
+            // Start falling animation
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 3);
             SwitchState(Factory.Airborne());
             return;
         }
@@ -52,13 +40,12 @@ public class PlayerGroundedState : PlayerBaseState
             Vector2 perp = -Vector2.Perpendicular(hit.normal);
             //Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
         }
-        Ctx.LastSurfaceNormal = hit.normal;
-        // add something to if statement to cancel out any upward velocity caused just by walking? This is meant to account for cases where you jump but never leave the ground  
+        Ctx.LastSurfaceNormal = hit.normal; 
         if (Time.timeSinceLevelLoad - Ctx.LastJumpPressTime > Ctx.Data.jumpBufferTime && (Ctx.PlayerBody.velocity.y <= 0 || Time.timeSinceLevelLoad - Ctx.LastOnGroundTime > Ctx.Data.jumpBufferTime))
         {
             Ctx.IsJumping = false;
         }
-        Ctx.Drag(Ctx.Data.groundFriction);
+        Ctx.applyLinearDrag();
     }
 
     public override void ExitState()
@@ -81,9 +68,13 @@ public class PlayerGroundedState : PlayerBaseState
     {
         if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
             SetSubState(Factory.Idle());
+            // Play Idle animation
+            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
         }
         else{
             SetSubState(Factory.Walk());
+            // Play walking animation
+            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
         }
     }
 }
