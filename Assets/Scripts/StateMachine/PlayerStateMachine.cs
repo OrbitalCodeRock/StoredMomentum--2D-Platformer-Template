@@ -139,8 +139,9 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void comeToStop()
     {
-        if(Mathf.Abs(PlayerBody.velocity.x) < 0.1)
+        if(Mathf.Abs(PlayerBody.velocity.x) < 0.1f)
         {
+            PlayerBody.velocity = new Vector2(0, PlayerBody.velocity.y);
             return;
         }
 
@@ -163,7 +164,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void applyLinearDrag()
     {
-        if (Mathf.Abs(PlayerBody.velocity.x) < 0.01f) PlayerBody.velocity = new Vector2(0, PlayerBody.velocity.y);
+        if (Mathf.Abs(PlayerBody.velocity.x) < 0.1f) return;
         else PlayerBody.AddForce(-PlayerBody.velocity * _data.getLinearDragCoefficent() * PlayerBody.mass);
     }
     public void applyLinearDrag(float dragCoefficent)

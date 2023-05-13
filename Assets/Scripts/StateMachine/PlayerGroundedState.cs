@@ -40,8 +40,7 @@ public class PlayerGroundedState : PlayerBaseState
             Vector2 perp = -Vector2.Perpendicular(hit.normal);
             //Debug.Log(Vector2.SignedAngle(Vector2.right, perp));
         }
-        Ctx.LastSurfaceNormal = hit.normal;
-        // add something to if statement to cancel out any upward velocity caused just by walking? This is meant to account for cases where you jump but never leave the ground  
+        Ctx.LastSurfaceNormal = hit.normal; 
         if (Time.timeSinceLevelLoad - Ctx.LastJumpPressTime > Ctx.Data.jumpBufferTime && (Ctx.PlayerBody.velocity.y <= 0 || Time.timeSinceLevelLoad - Ctx.LastOnGroundTime > Ctx.Data.jumpBufferTime))
         {
             Ctx.IsJumping = false;

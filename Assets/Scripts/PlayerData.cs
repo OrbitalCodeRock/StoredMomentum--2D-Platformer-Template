@@ -40,8 +40,6 @@ public class PlayerData : ScriptableObject
     [SerializeField]
     private float maxRunSpeed;
 
-    
-
     [SerializeField]
     private float linearDragCoefficent;
 

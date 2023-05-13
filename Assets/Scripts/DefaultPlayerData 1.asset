@@ -12,23 +12,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676336f86cb0f824daa0812908417233, type: 3}
   m_Name: DefaultPlayerData 1
   m_EditorClassIdentifier: 
-  gravityScale: 1
-  fallGravityMult: 1.35
+  gravityScale: 1.25
+  fallGravityMult: 1
   quickFallGravityMult: 2.2
-  airDrag: 0.22
-  groundFriction: 0.55
   coyoteTime: 0.25
-  runMaxSpeed: 12
-  runAccel: 9.3
-  runDeccel: 15
-  airAccel: 0.65
-  airDeccel: 0.65
-  accelInAir: 1.05
-  deccelInAir: 1.23
-  accelPower: 1.05
-  stopPower: 1.23
-  turnPower: 1.13
+  runAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxRunAcceleration: 30
+  turnAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxTurnAcceleration: 60
+  stopAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxStopAcceleration: 15
+  maxRunSpeed: 10
+  linearDragCoefficent: 0.98
   jumpForce: 15
   jumpCutMultiplier: 0.5
   jumpBufferTime: 0.2
-  doKeepRunMomentum: 0

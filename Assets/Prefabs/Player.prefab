@@ -182,15 +182,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainCamera: {fileID: 0}
-  MomentumUI: {fileID: 0}
-  _data: {fileID: 11400000, guid: 7c9f79a114b2ea445afda510d3fe4213, type: 2}
+  _data: {fileID: 11400000, guid: 5495389aae56b6d43bea9a6ade089745, type: 2}
   GroundCheckPoint: {fileID: 5077261383808969459}
   GroundCheckSize: {x: 0.985, y: 1}
   GroundCheckDistance: 0.1
   _walkableLayers:
     serializedVersion: 2
     m_Bits: 8
-  momentumManipulation: 0
   _isGrounded: 0
   isJumping: 0
 --- !u!70 &5077261382573278603
