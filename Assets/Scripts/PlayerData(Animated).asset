@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676336f86cb0f824daa0812908417233, type: 3}
   m_Name: PlayerData(Animated)
   m_EditorClassIdentifier: 
-  gravityScale: 1.25
+  gravityScale: 1
   fallGravityMult: 1
   quickFallGravityMult: 1.5
   coyoteTime: 0.25
@@ -65,7 +65,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxTurnAcceleration: 30
+  maxTurnAcceleration: 60
   stopAccelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -90,9 +90,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxStopAcceleration: 7.5
+  maxStopAcceleration: 15
   maxRunSpeed: 6.5
   linearDragCoefficent: 0.98
-  jumpForce: 12
+  jumpForce: 10
   jumpCutMultiplier: 0.5
   jumpBufferTime: 0.2

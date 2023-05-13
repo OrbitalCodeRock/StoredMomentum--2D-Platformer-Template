@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676336f86cb0f824daa0812908417233, type: 3}
   m_Name: DefaultPlayerData 1
   m_EditorClassIdentifier: 
-  gravityScale: 1.25
+  gravityScale: 1.5
   fallGravityMult: 1
-  quickFallGravityMult: 2.2
+  quickFallGravityMult: 1.5
   coyoteTime: 0.25
   runAccelerationCurve:
     serializedVersion: 2
