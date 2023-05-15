@@ -2,8 +2,7 @@
 
 This project started off as a 2D Platformer game for a game jam but I ended up running out of time before I could get the game to a point where I wanted to submit it. Now, I've converted the project to a 2-D Platformer template which could serve as a general purpose tool for creating a platformer. So far, the project includes a working character controller that makes use of unity's built-in physics system. The controller has a variety of settings that can be tweaked to change the way controlling the player feels. 
 
-One thing I do want to make clear is that the code written for the character controller was not made entirely off the top of my head.
-Initially, I started off by basing the character controller of this repository: https://github.com/Dawnosaur/platformer-movement. I've since made a decent amount of changes, but you may see some similarities between certain sections of code/variable names. That being said, it's also possible that the repository linked above has also changed.
+I started off by basing the character controller on this repository: https://github.com/Dawnosaur/platformer-movement. I've since made a decent amount of changes, but you may see some similarities between certain sections of code/variable names. That being said, it's also possible that the repository linked above has also changed.
 
 So far, the character controller supports the following features:
 - Varying jump height based on how long the jump-key is held
