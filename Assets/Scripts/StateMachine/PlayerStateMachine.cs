@@ -31,10 +31,16 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector2 GroundCheckSize;
     public float GroundCheckDistance;
 
+    public Collider2D WallSlideColliderRight;
+
+    public Collider2D WallSlideColliderLeft;
+
     [SerializeField]
     private LayerMask _walkableLayers;
 
     public LayerMask WalkableLayers { get { return _walkableLayers; } set { _walkableLayers = value; } }
+
+    public LayerMask WallSlideLayers;
 
     public Vector2 MoveInput { get; private set; }
 

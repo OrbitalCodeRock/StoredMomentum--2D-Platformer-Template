@@ -48,6 +48,23 @@ public class PlayerAirborneState : PlayerBaseState
             SwitchState(Factory.Grounded());
             return;
         }
+        // If the player is falling and is holding right while colliding with a wall on the right,
+        // or holding left while colliding with a wall on the left.
+        // Switch states to the wallslide state
+        if(Ctx.IsFalling){
+            if(Ctx.MoveInput.x < 0 && Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+                PlayerWallslideState wallslideState = (PlayerWallslideState)Factory.Wallslide();
+                wallslideState.setSlideOrientation(PlayerWallslideState.WallSlideOrientation.LEFT);
+                SwitchState(wallslideState);
+                return;
+            }
+            else if(Ctx.MoveInput.x > 0 && Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+                PlayerWallslideState wallslideState = (PlayerWallslideState)Factory.Wallslide();
+                wallslideState.setSlideOrientation(PlayerWallslideState.WallSlideOrientation.RIGHT);
+                SwitchState(wallslideState);
+                return;
+            }
+        }
         if (Ctx.PlayerBody.velocity.y >= 0)
         {
             Ctx.SetGravityScale(Ctx.Data.gravityScale);
@@ -84,4 +101,6 @@ public class PlayerAirborneState : PlayerBaseState
             SetSubState(Factory.Walk());
         }
     }
+
+
 }

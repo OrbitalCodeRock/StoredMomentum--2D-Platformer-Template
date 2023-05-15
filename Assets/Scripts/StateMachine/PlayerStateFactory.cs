@@ -14,6 +14,7 @@ public class PlayerStateFactory
         grounded,
         airborne,
         wallslide,
+        walljump,
     }
 
     Dictionary<PlayerStates, PlayerBaseState> _states = new Dictionary<PlayerStates, PlayerBaseState>();
@@ -27,6 +28,7 @@ public class PlayerStateFactory
         _states[PlayerStates.grounded] = new PlayerGroundedState(_context, this);
         _states[PlayerStates.airborne] = new PlayerAirborneState(_context, this);
         _states[PlayerStates.wallslide] = new PlayerWallslideState(_context, this);
+        _states[PlayerStates.walljump] = new PlayerWallJumpState(_context, this);
     }
 
     public PlayerBaseState Idle()
@@ -56,5 +58,9 @@ public class PlayerStateFactory
 
     public PlayerBaseState Wallslide(){
         return _states[PlayerStates.wallslide];
+    }
+
+    public PlayerBaseState WallJump(){
+        return _states[PlayerStates.walljump];
     }
 }
