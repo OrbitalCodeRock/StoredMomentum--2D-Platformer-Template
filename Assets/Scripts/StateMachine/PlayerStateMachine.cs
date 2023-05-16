@@ -180,13 +180,14 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void Jump()
     {
-        float force = _data.jumpForce;
+        float forceMagnitude = _data.jumpForce;
+        Vector2 force = forceMagnitude * Vector2.up;
         // Cancel out downward forces on jump;
         if (PlayerBody.velocity.y < 0)
         {
-            force -= PlayerBody.velocity.y;
+            force -= new Vector2(0, PlayerBody.velocity.y);
         }
-        PlayerBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        PlayerBody.AddForce(force, ForceMode2D.Impulse);
     }
 
     private void JumpCut()

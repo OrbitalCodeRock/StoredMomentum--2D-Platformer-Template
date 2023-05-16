@@ -60,11 +60,12 @@ public class PlayerWallJumpState : PlayerBaseState
                 jumpDirection = Quaternion.Euler(0,0, -Ctx.Data.getWallJumpAngle()) * Vector2.up;
                 break;
         }
-        float force = Ctx.Data.getWallJumpForce();
+        float forceMagnitude = Ctx.Data.getWallJumpForce();
+        Vector2 force = forceMagnitude * jumpDirection;
         if (Ctx.PlayerBody.velocity.y < 0)
         {
-            force -= Ctx.PlayerBody.velocity.y;
+            force -= new Vector2(0, Ctx.PlayerBody.velocity.y);
         }
-        Ctx.PlayerBody.AddForce(jumpDirection * force, ForceMode2D.Impulse);
+        Ctx.PlayerBody.AddForce(force, ForceMode2D.Impulse);
     }
 }
