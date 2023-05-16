@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerAirborneState : PlayerBaseState
 {
+    private bool shouldJump = false;
+
     // The purpose of these two variables is to help ensure that the player does not get stuck in an incorrectly airborne state.
     // (and also to keep track of the airborne start time)
     // Making this float less than JumpBufferTime seems to allow a glitch were multiple jumps rapidly occur where only a single jump should.
@@ -24,7 +26,7 @@ public class PlayerAirborneState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        if(CheckSwitchStates()) return;
+        shouldJump = CheckSwitchStates();
 
     }
     public override void FixedUpdateState()
@@ -66,6 +68,10 @@ public class PlayerAirborneState : PlayerBaseState
                 return;
             }
         }
+        if(shouldJump){
+            shouldJump = false;
+            SetSubState(Factory.Jump());
+        }
         if (Ctx.PlayerBody.velocity.y >= 0)
         {
             Ctx.SetGravityScale(Ctx.Data.gravityScale);
@@ -87,7 +93,7 @@ public class PlayerAirborneState : PlayerBaseState
     {
         if(!Ctx.IsJumping && Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime && Time.timeSinceLevelLoad - Ctx.LastOnGroundTime <= Ctx.Data.coyoteTime)
         {
-            SetSubState(Factory.Jump());
+            return true;
         }
         return false;
     }

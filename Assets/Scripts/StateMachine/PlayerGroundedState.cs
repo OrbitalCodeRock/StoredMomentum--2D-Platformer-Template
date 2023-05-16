@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerGroundedState : PlayerBaseState
 {
+
+    private bool shouldJump = false;
+
     public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory)
     {
         IsRootState = true;
@@ -21,7 +24,7 @@ public class PlayerGroundedState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        if (CheckSwitchStates()) return;
+        shouldJump = CheckSwitchStates();
     }
 
     public override void FixedUpdateState()
@@ -45,6 +48,10 @@ public class PlayerGroundedState : PlayerBaseState
         {
             Ctx.IsJumping = false;
         }
+        if(shouldJump){
+            shouldJump = false;
+            SetSubState(Factory.Jump());
+        }
         Ctx.applyLinearDrag();
     }
 
@@ -59,7 +66,6 @@ public class PlayerGroundedState : PlayerBaseState
         // Currently there is a glitch where multiple jumps occur where a single jump should, maybe something can be done here to prevent that.
         if(!Ctx.IsJumping && Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime)
         {
-            SetSubState(Factory.Jump());
             return true;
         }
         return false;

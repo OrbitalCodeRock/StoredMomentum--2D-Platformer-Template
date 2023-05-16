@@ -10,6 +10,8 @@ public class PlayerWallslideState : PlayerBaseState
         LEFT,
     }
 
+    private bool shouldWallJump = false;
+
     private WallSlideOrientation slideOrientation;
 
     public PlayerWallslideState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory){
@@ -23,7 +25,7 @@ public class PlayerWallslideState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        if(CheckSwitchStates()) return;
+        shouldWallJump = CheckSwitchStates();
     }
     public override void FixedUpdateState()
     {
@@ -53,6 +55,10 @@ public class PlayerWallslideState : PlayerBaseState
                 }
                 break;
         }
+        if(shouldWallJump){
+            shouldWallJump = false;
+            SetSubState(Factory.WallJump());
+        }
     }
     public override void ExitState()
     {
@@ -60,9 +66,9 @@ public class PlayerWallslideState : PlayerBaseState
     }
     public override bool CheckSwitchStates()
     {
-        if(Ctx.LastJumpPressTime > Ctx.LastJumpTime)
+        // Maybe I should have a seperate jump buffer time for walljumps
+        if(Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime)
         {
-            SetSubState(Factory.WallJump());
             return true;
         }
         return false;
