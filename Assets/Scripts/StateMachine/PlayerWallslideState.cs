@@ -18,6 +18,7 @@ public class PlayerWallslideState : PlayerBaseState
 
      public override void EnterState()
     {
+        Debug.Log("Entered Wallslide");
         InitializeSubState();
     }
     public override void UpdateState()
@@ -73,5 +74,9 @@ public class PlayerWallslideState : PlayerBaseState
 
     public void setSlideOrientation(WallSlideOrientation slideOrientation){
         this.slideOrientation = slideOrientation;
+    }
+
+    public WallSlideOrientation getSlideOrientation(){
+        return slideOrientation;
     }
 }

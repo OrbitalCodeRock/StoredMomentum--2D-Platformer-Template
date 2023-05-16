@@ -47,6 +47,11 @@ public class PlayerData : ScriptableObject
     public float jumpCutMultiplier;
     public float jumpBufferTime; // Allows the player to buffer a jump input.
 
+    [SerializeField]
+    private float wallJumpAngle;
+    [SerializeField]
+    private float wallJumpForce;
+
     public AnimationCurve getRunAccelerationCurve()
     {
         return runAccelerationCurve;
@@ -85,5 +90,13 @@ public class PlayerData : ScriptableObject
     public float getMaxTurnAcceleration()
     {
         return maxTurnAcceleration;
+    }
+
+    public float getWallJumpAngle(){
+        return this.wallJumpAngle;
+    }
+
+    public float getWallJumpForce(){
+        return this.wallJumpForce;
     }
 }

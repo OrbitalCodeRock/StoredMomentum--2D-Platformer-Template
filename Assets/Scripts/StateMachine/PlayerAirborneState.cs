@@ -20,6 +20,7 @@ public class PlayerAirborneState : PlayerBaseState
     {
         InitializeSubState();
         airborneStartTime = Time.timeSinceLevelLoad;
+        //Debug.Log("Enter Airborne");
     }
     public override void UpdateState()
     {
@@ -80,7 +81,7 @@ public class PlayerAirborneState : PlayerBaseState
     }
     public override void ExitState()
     {
-
+        //Debug.Log("Exit Airborne");
     }
     public override bool CheckSwitchStates()
     {

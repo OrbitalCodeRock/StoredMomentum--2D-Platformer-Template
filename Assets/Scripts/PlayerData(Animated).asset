@@ -96,3 +96,5 @@ MonoBehaviour:
   jumpForce: 10
   jumpCutMultiplier: 0.5
   jumpBufferTime: 0.2
+  wallJumpAngle: 45
+  wallJumpForce: 15
