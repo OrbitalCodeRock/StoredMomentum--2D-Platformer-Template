@@ -49,11 +49,18 @@ public class PlayerData : ScriptableObject
 
     [SerializeField]
     private float wallJumpAngle;
+
     [SerializeField]
     private float wallJumpForce;
 
     [SerializeField]
     private float WallSlideClingTime;
+
+    [SerializeField]
+    private float wallSlideSpeed;
+
+    [SerializeField]
+    private float maxWallSlideSlowdownTime;
 
     public AnimationCurve getRunAccelerationCurve()
     {
@@ -105,5 +112,13 @@ public class PlayerData : ScriptableObject
 
     public float getWallSlideClingTime(){
         return WallSlideClingTime;
+    }
+
+    public float getWallSlideSpeed(){
+        return wallSlideSpeed;
+    }
+
+    public float getMaxWallSlideSlowdownTime(){
+        return maxWallSlideSlowdownTime;
     }
 }

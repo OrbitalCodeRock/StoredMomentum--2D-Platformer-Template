@@ -36,14 +36,14 @@ public class PlayerWallJumpState : PlayerBaseState
     }
 
     private void WallJump(){
-        PlayerWallslideState wallSlideState = (PlayerWallslideState)Factory.Wallslide();
-        PlayerWallslideState.WallSlideOrientation orientation = wallSlideState.getSlideOrientation();
+        PlayerWallSlideState wallSlideState = (PlayerWallSlideState)Factory.Wallslide();
+        PlayerWallSlideState.WallSlideOrientation orientation = wallSlideState.getSlideOrientation();
         Vector2 jumpDirection = Vector2.up;
         switch(orientation){
-            case PlayerWallslideState.WallSlideOrientation.RIGHT:
+            case PlayerWallSlideState.WallSlideOrientation.RIGHT:
                 jumpDirection = Quaternion.Euler(0,0,Ctx.Data.getWallJumpAngle()) * Vector2.up;
                 break;
-            case PlayerWallslideState.WallSlideOrientation.LEFT:
+            case PlayerWallSlideState.WallSlideOrientation.LEFT:
                 jumpDirection = Quaternion.Euler(0,0, -Ctx.Data.getWallJumpAngle()) * Vector2.up;
                 break;
         }

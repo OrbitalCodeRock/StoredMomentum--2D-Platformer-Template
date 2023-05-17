@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerWallslideState : PlayerBaseState
+public class PlayerWallSlideState : PlayerBaseState
 {
 
     public enum WallSlideOrientation{
@@ -16,10 +16,13 @@ public class PlayerWallslideState : PlayerBaseState
 
     private WallSlideOrientation slideOrientation;
 
-    public PlayerWallslideState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory){
+    public PlayerWallSlideState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory){
         IsRootState = true;
     }
-
+    public override void EnterState()
+    {
+        Debug.Log("Enter Wallslide");
+    }
     public override void UpdateState()
     {
         shouldWallJump = ShouldWallJump();
@@ -64,6 +67,11 @@ public class PlayerWallslideState : PlayerBaseState
             shouldWallJump = false;
             SetSubState(Factory.WallJump());
         }
+        // Work on refinining this. This section of code is responsible for slowing down the player in a wall slide.
+        else if(Ctx.PlayerBody.velocity.y < -Mathf.Abs(Ctx.Data.getWallSlideSpeed())){
+            Vector2 expectedVelocity = new Vector2(0, Ctx.PlayerBody.velocity.y + (Physics2D.gravity.y * Ctx.PlayerBody.gravityScale)/Ctx.PlayerBody.mass);
+            Ctx.PlayerBody.AddForce(Ctx.PlayerBody.mass * Vector2.up * -expectedVelocity.y * (1/Ctx.Data.getMaxWallSlideSlowdownTime()));
+        }
     }
     public override void ExitState()
     {
@@ -71,6 +79,7 @@ public class PlayerWallslideState : PlayerBaseState
             Ctx.StopCoroutine(clingRoutine);
             clingRoutine = null;
         }
+        Debug.Log("Exit Wallslide");
     }
     public bool ShouldWallJump()
     {

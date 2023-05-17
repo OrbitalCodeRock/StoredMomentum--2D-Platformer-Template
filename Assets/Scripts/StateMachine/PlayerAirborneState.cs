@@ -55,14 +55,14 @@ public class PlayerAirborneState : PlayerBaseState
         // or holding left while colliding with a wall on the left.
         // Switch states to the wallslide state
         if(Ctx.MoveInput.x < 0 && Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
-            PlayerWallslideState wallslideState = (PlayerWallslideState)Factory.Wallslide();
-            wallslideState.setSlideOrientation(PlayerWallslideState.WallSlideOrientation.LEFT);
+            PlayerWallSlideState wallslideState = (PlayerWallSlideState)Factory.Wallslide();
+            wallslideState.setSlideOrientation(PlayerWallSlideState.WallSlideOrientation.LEFT);
             SwitchState(wallslideState);
             return;
         }
         else if(Ctx.MoveInput.x > 0 && Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
-            PlayerWallslideState wallslideState = (PlayerWallslideState)Factory.Wallslide();
-            wallslideState.setSlideOrientation(PlayerWallslideState.WallSlideOrientation.RIGHT);
+            PlayerWallSlideState wallslideState = (PlayerWallSlideState)Factory.Wallslide();
+            wallslideState.setSlideOrientation(PlayerWallSlideState.WallSlideOrientation.RIGHT);
             SwitchState(wallslideState);
             return;
         }

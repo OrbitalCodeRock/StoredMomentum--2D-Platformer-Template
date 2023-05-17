@@ -27,7 +27,7 @@ public class PlayerStateFactory
         _states[PlayerStates.jump] = new PlayerJumpState(_context, this);
         _states[PlayerStates.grounded] = new PlayerGroundedState(_context, this);
         _states[PlayerStates.airborne] = new PlayerAirborneState(_context, this);
-        _states[PlayerStates.wallslide] = new PlayerWallslideState(_context, this);
+        _states[PlayerStates.wallslide] = new PlayerWallSlideState(_context, this);
         _states[PlayerStates.walljump] = new PlayerWallJumpState(_context, this);
     }
 

@@ -145,6 +145,9 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void comeToStop()
     {
+        // May want to remove this, don't think I should constant set velocity to 0 in an update loop.
+        // Maybe I could make it easier for the player to stay stopped by adding friction to the idle state?
+        // (Currently the player has an issue of sliding off slopes while idle)
         if(Mathf.Abs(PlayerBody.velocity.x) < 0.1f)
         {
             PlayerBody.velocity = new Vector2(0, PlayerBody.velocity.y);
