@@ -52,6 +52,9 @@ public class PlayerData : ScriptableObject
     [SerializeField]
     private float wallJumpForce;
 
+    [SerializeField]
+    private float WallSlideClingTime;
+
     public AnimationCurve getRunAccelerationCurve()
     {
         return runAccelerationCurve;
@@ -98,5 +101,9 @@ public class PlayerData : ScriptableObject
 
     public float getWallJumpForce(){
         return this.wallJumpForce;
+    }
+
+    public float getWallSlideClingTime(){
+        return WallSlideClingTime;
     }
 }

@@ -12,17 +12,14 @@ public class PlayerWallslideState : PlayerBaseState
 
     private bool shouldWallJump = false;
 
+    private IEnumerator clingRoutine = null;
+
     private WallSlideOrientation slideOrientation;
 
     public PlayerWallslideState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory){
         IsRootState = true;
     }
 
-     public override void EnterState()
-    {
-        // Debug.Log("Entered Wallslide");
-        InitializeSubState();
-    }
     public override void UpdateState()
     {
         shouldWallJump = ShouldWallJump();
@@ -43,15 +40,23 @@ public class PlayerWallslideState : PlayerBaseState
         }
         switch(slideOrientation){
             case WallSlideOrientation.RIGHT:
-                if(Ctx.MoveInput.x <= 0 || !Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+                if(!Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
                     SwitchState(Factory.Airborne());
                     return;
                 }
+                else if(Ctx.MoveInput.x <= 0){
+                    clingRoutine = ClingToWall(Ctx.Data.getWallSlideClingTime());
+                    Ctx.StartCoroutine(clingRoutine);
+                }
                 break;
             case WallSlideOrientation.LEFT:
-                if(Ctx.MoveInput.x >= 0 || !Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+                if(!Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
                     SwitchState(Factory.Airborne());
                     return;
+                }
+                else if(Ctx.MoveInput.x >= 0){
+                    clingRoutine = ClingToWall(Ctx.Data.getWallSlideClingTime());
+                    Ctx.StartCoroutine(clingRoutine);
                 }
                 break;
         }
@@ -62,7 +67,7 @@ public class PlayerWallslideState : PlayerBaseState
     }
     public override void ExitState()
     {
-
+        if(clingRoutine != null) Ctx.StopCoroutine(clingRoutine);
     }
     public bool ShouldWallJump()
     {
@@ -73,16 +78,23 @@ public class PlayerWallslideState : PlayerBaseState
         }
         return false;
     }
-    public override void InitializeSubState()
-    {
-        
-    }
-
     public void setSlideOrientation(WallSlideOrientation slideOrientation){
         this.slideOrientation = slideOrientation;
     }
 
     public WallSlideOrientation getSlideOrientation(){
         return slideOrientation;
+    }
+
+    private IEnumerator ClingToWall(float clingTime){
+        yield return new WaitForSeconds(clingTime);
+        switch(slideOrientation){
+            case WallSlideOrientation.RIGHT:
+                if(Ctx.MoveInput.x <= 0) SwitchState(Factory.Airborne());
+                break;
+            case WallSlideOrientation.LEFT:
+                if(Ctx.MoveInput.x >= 0) SwitchState(Factory.Airborne());
+                break;
+        }
     }
 }
