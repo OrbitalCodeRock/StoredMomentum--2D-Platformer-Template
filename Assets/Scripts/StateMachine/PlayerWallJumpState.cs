@@ -10,7 +10,7 @@ public class PlayerWallJumpState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Entered WallJump");
+        // Debug.Log("Entered WallJump");
         Ctx.IsJumping = true;
         WallJump();
         // Set animation state to a wall jump animation.
@@ -21,16 +21,7 @@ public class PlayerWallJumpState : PlayerBaseState
         if (CheckSwitchStates()) return;
     }
 
-    public override void FixedUpdateState()
-    {
-        
-    }
-
-    public override void ExitState()
-    {
-
-    }
-    public override bool CheckSwitchStates()
+    public bool CheckSwitchStates()
     {
         if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
         {
@@ -42,10 +33,6 @@ public class PlayerWallJumpState : PlayerBaseState
             SwitchState(Factory.Walk());
             return true;
         }
-    }
-    public override void InitializeSubState()
-    {
-
     }
 
     private void WallJump(){

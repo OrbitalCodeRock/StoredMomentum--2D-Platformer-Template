@@ -20,12 +20,12 @@ public class PlayerWallslideState : PlayerBaseState
 
      public override void EnterState()
     {
-        Debug.Log("Entered Wallslide");
+        // Debug.Log("Entered Wallslide");
         InitializeSubState();
     }
     public override void UpdateState()
     {
-        shouldWallJump = CheckSwitchStates();
+        shouldWallJump = ShouldWallJump();
     }
     public override void FixedUpdateState()
     {
@@ -64,7 +64,7 @@ public class PlayerWallslideState : PlayerBaseState
     {
 
     }
-    public override bool CheckSwitchStates()
+    public bool ShouldWallJump()
     {
         // Maybe I should have a seperate jump buffer time for walljumps
         if(Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime)

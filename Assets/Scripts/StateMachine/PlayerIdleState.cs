@@ -9,11 +9,6 @@ public class PlayerIdleState : PlayerBaseState
     {
 
     }
-
-    public override void EnterState()
-    {
-        
-    }
     public override void UpdateState()
     {
         if (CheckSwitchStates()) return;
@@ -23,24 +18,15 @@ public class PlayerIdleState : PlayerBaseState
     {
        Ctx.comeToStop();
     }
-
-    public override void ExitState()
-    {
-
-    }
-    public override bool CheckSwitchStates()
+    public bool CheckSwitchStates()
     {
         if (Mathf.Abs(Ctx.MoveInput.x) > 0.01f)
         {
             SwitchState(Factory.Walk());
             // Play walking animation
-            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping)Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
+            if(Ctx.PlayerAnimator != null && !Ctx.IsJumping) Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
             return true;
         }
         return false;
-    }
-    public override void InitializeSubState()
-    {
-
     }
 }

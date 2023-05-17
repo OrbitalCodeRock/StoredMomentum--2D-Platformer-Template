@@ -8,10 +8,7 @@ public class PlayerWalkState : PlayerBaseState
     {
 
     }
-    public override void EnterState() 
-    { 
     
-    }
     public override void UpdateState() 
     {
         if (CheckSwitchStates()) return;
@@ -27,12 +24,7 @@ public class PlayerWalkState : PlayerBaseState
         }
         Ctx.Run();
     }
-
-    public override void ExitState()
-    {
-    
-    }
-    public override bool CheckSwitchStates()
+    public bool CheckSwitchStates()
     {
         if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
         {
@@ -44,10 +36,6 @@ public class PlayerWalkState : PlayerBaseState
             return true;
         }
         return false;
-    }
-    public override void InitializeSubState() 
-    {
-
     }
     IEnumerator IdleDelay(float timeDelay){
         yield return new WaitForSeconds(timeDelay);

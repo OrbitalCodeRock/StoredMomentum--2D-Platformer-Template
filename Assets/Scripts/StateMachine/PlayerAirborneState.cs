@@ -26,7 +26,7 @@ public class PlayerAirborneState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        shouldJump = CheckSwitchStates();
+        shouldJump = ShouldJump();
 
     }
     public override void FixedUpdateState()
@@ -89,7 +89,7 @@ public class PlayerAirborneState : PlayerBaseState
     {
         //Debug.Log("Exit Airborne");
     }
-    public override bool CheckSwitchStates()
+    public bool ShouldJump()
     {
         if(!Ctx.IsJumping && Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime && Time.timeSinceLevelLoad - Ctx.LastOnGroundTime <= Ctx.Data.coyoteTime)
         {

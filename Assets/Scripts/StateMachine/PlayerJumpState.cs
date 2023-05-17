@@ -21,17 +21,7 @@ public class PlayerJumpState : PlayerBaseState
     {
         if (CheckSwitchStates()) return;
     }
-
-    public override void FixedUpdateState()
-    {
-        
-    }
-
-    public override void ExitState()
-    {
-
-    }
-    public override bool CheckSwitchStates()
+    public bool CheckSwitchStates()
     {
         if (Mathf.Abs(Ctx.MoveInput.x) <= 0.01f)
         {
@@ -43,9 +33,5 @@ public class PlayerJumpState : PlayerBaseState
             SwitchState(Factory.Walk());
             return true;
         }
-    }
-    public override void InitializeSubState()
-    {
-
     }
 }

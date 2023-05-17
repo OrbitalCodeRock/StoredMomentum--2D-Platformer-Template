@@ -18,13 +18,21 @@ public abstract class PlayerBaseState
         _factory = playerStateFactory;
     }
 
-    public abstract void EnterState();
-    public abstract void UpdateState();
-    public abstract void FixedUpdateState();
-    public abstract void ExitState();
-    // Returns True if state switch was made, false if not
-    public abstract bool CheckSwitchStates();
-    public abstract void InitializeSubState();
+    public virtual void EnterState(){
+
+    }
+    public virtual void UpdateState(){
+
+    }
+    public virtual void FixedUpdateState(){
+
+    }
+    public virtual void ExitState(){
+
+    }
+    public virtual void InitializeSubState(){
+
+    }
 
     public void CallUpdateStates()
     {

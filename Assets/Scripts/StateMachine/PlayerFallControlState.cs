@@ -14,31 +14,4 @@ public class PlayerFallControlState : PlayerBaseState
         context = currentContext;
         factory = playerStateFactory;
     }
-    public override void EnterState()
-    {
-        
-    }
-
-    public override void ExitState()
-    {
-        
-    }
-    public override void UpdateState()
-    {
-
-    }
-
-    public override void FixedUpdateState()
-    {
-        
-    }
-
-    public override bool CheckSwitchStates()
-    {
-        return false;
-    }
-    public override void InitializeSubState()
-    {
-
-    }
 }

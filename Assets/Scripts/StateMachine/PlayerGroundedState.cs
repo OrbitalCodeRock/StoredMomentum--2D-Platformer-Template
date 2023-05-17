@@ -24,7 +24,7 @@ public class PlayerGroundedState : PlayerBaseState
     }
     public override void UpdateState()
     {
-        shouldJump = CheckSwitchStates();
+        shouldJump = ShouldJump();
     }
 
     public override void FixedUpdateState()
@@ -49,7 +49,6 @@ public class PlayerGroundedState : PlayerBaseState
             Ctx.IsJumping = false;
         }
         if(shouldJump){
-            shouldJump = false;
             SetSubState(Factory.Jump());
         }
         Ctx.applyLinearDrag();
@@ -61,7 +60,7 @@ public class PlayerGroundedState : PlayerBaseState
         Ctx.LastOnGroundTime = Time.timeSinceLevelLoad;
         Ctx.IsGrounded = false;
     }
-    public override bool CheckSwitchStates()
+    public bool ShouldJump()
     {
         // Currently there is a glitch where multiple jumps occur where a single jump should, maybe something can be done here to prevent that.
         if(!Ctx.IsJumping && Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime)
@@ -75,12 +74,19 @@ public class PlayerGroundedState : PlayerBaseState
         if(Mathf.Abs(Ctx.MoveInput.x) <= 0.01f){
             SetSubState(Factory.Idle());
             // Play Idle animation
-            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 0);
+            if (Ctx.PlayerAnimator != null) Ctx.StartCoroutine(WaitToAnimate(0));
         }
         else{
             SetSubState(Factory.Walk());
             // Play walking animation
-            if (Ctx.PlayerAnimator != null) Ctx.PlayerAnimator.SetInteger("AnimationState", 1);
+            if (Ctx.PlayerAnimator != null) Ctx.StartCoroutine(WaitToAnimate(1));
+        }
+    }
+
+    public IEnumerator WaitToAnimate(int stateInteger){
+        yield return new WaitForEndOfFrame();
+        if(!shouldJump){
+            Ctx.PlayerAnimator.SetInteger("AnimationState", stateInteger);
         }
     }
 }
