@@ -44,7 +44,7 @@ public class PlayerWallslideState : PlayerBaseState
                     SwitchState(Factory.Airborne());
                     return;
                 }
-                else if(Ctx.MoveInput.x <= 0){
+                else if(Ctx.MoveInput.x <= 0 && clingRoutine == null){
                     clingRoutine = ClingToWall(Ctx.Data.getWallSlideClingTime());
                     Ctx.StartCoroutine(clingRoutine);
                 }
@@ -54,7 +54,7 @@ public class PlayerWallslideState : PlayerBaseState
                     SwitchState(Factory.Airborne());
                     return;
                 }
-                else if(Ctx.MoveInput.x >= 0){
+                else if(Ctx.MoveInput.x >= 0 && clingRoutine == null){
                     clingRoutine = ClingToWall(Ctx.Data.getWallSlideClingTime());
                     Ctx.StartCoroutine(clingRoutine);
                 }
@@ -67,7 +67,10 @@ public class PlayerWallslideState : PlayerBaseState
     }
     public override void ExitState()
     {
-        if(clingRoutine != null) Ctx.StopCoroutine(clingRoutine);
+        if(clingRoutine != null){
+            Ctx.StopCoroutine(clingRoutine);
+            clingRoutine = null;
+        }
     }
     public bool ShouldWallJump()
     {
