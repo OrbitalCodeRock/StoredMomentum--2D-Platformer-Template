@@ -56,7 +56,7 @@ public class PlayerStateFactory
         return _states[PlayerStates.airborne];
     }
 
-    public PlayerBaseState Wallslide(){
+    public PlayerBaseState WallSlide(){
         return _states[PlayerStates.wallslide];
     }
 

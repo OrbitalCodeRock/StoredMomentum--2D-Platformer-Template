@@ -36,7 +36,7 @@ public class PlayerWallJumpState : PlayerBaseState
     }
 
     private void WallJump(){
-        PlayerWallSlideState wallSlideState = (PlayerWallSlideState)Factory.Wallslide();
+        PlayerWallSlideState wallSlideState = (PlayerWallSlideState)Factory.WallSlide();
         PlayerWallSlideState.WallSlideOrientation orientation = wallSlideState.getSlideOrientation();
         Vector2 jumpDirection = Vector2.up;
         switch(orientation){
