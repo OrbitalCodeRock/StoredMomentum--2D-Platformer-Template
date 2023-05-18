@@ -6,6 +6,8 @@ public class PlayerAirborneState : PlayerBaseState
 {
     private bool shouldJump = false;
 
+    private bool couldWallJump = false;
+
     // The purpose of these two variables is to help ensure that the player does not get stuck in an incorrectly airborne state.
     // (and also to keep track of the airborne start time)
     // Making this float less than JumpBufferTime seems to allow a glitch were multiple jumps rapidly occur where only a single jump should.
@@ -27,7 +29,7 @@ public class PlayerAirborneState : PlayerBaseState
     public override void UpdateState()
     {
         shouldJump = ShouldJump();
-
+        couldWallJump = CouldWallJump();
     }
     public override void FixedUpdateState()
     {
@@ -51,20 +53,31 @@ public class PlayerAirborneState : PlayerBaseState
             SwitchState(Factory.Grounded());
             return;
         }
+        // If the player wants to WallJump, let them WallJump.
         // If the player is holding right while colliding with a wall on the right,
         // or holding left while colliding with a wall on the left.
-        // Switch states to the wallslide state
-        if(Ctx.MoveInput.x < 0 && Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+        // Switch states to the wallslide state.
+        if(Ctx.WallSlideColliderLeft.IsTouchingLayers(Ctx.WallSlideLayers.value)){
             PlayerWallSlideState wallslideState = (PlayerWallSlideState)Factory.Wallslide();
             wallslideState.setSlideOrientation(PlayerWallSlideState.WallSlideOrientation.LEFT);
-            SwitchState(wallslideState);
-            return;
+            if(couldWallJump){
+                SetSubState(Factory.WallJump());
+            }
+            else if(Ctx.MoveInput.x < 0){
+                SwitchState(wallslideState);
+                return;
+            }
         }
-        else if(Ctx.MoveInput.x > 0 && Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
+        else if(Ctx.WallSlideColliderRight.IsTouchingLayers(Ctx.WallSlideLayers.value)){
             PlayerWallSlideState wallslideState = (PlayerWallSlideState)Factory.Wallslide();
             wallslideState.setSlideOrientation(PlayerWallSlideState.WallSlideOrientation.RIGHT);
-            SwitchState(wallslideState);
-            return;
+            if(couldWallJump){
+                SetSubState(Factory.WallJump());
+            }
+            else if(Ctx.MoveInput.x > 0){
+                SwitchState(wallslideState);
+                return;
+            }
         }
         if(shouldJump){
             shouldJump = false;
@@ -90,6 +103,15 @@ public class PlayerAirborneState : PlayerBaseState
     public bool ShouldJump()
     {
         if(!Ctx.IsJumping && Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime && Time.timeSinceLevelLoad - Ctx.LastOnGroundTime <= Ctx.Data.coyoteTime)
+        {
+            return true;
+        }
+        return false;
+    }
+    public bool CouldWallJump()
+    {
+        // Maybe I should have a seperate jump buffer time for walljumps
+        if(Ctx.LastJumpPressTime > Ctx.LastJumpTime && Time.timeSinceLevelLoad - Ctx.LastJumpPressTime <= Ctx.Data.jumpBufferTime)
         {
             return true;
         }
