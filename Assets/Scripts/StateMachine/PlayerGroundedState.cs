@@ -51,7 +51,6 @@ public class PlayerGroundedState : PlayerBaseState
         if(shouldJump){
             SetSubState(Factory.Jump());
         }
-        Ctx.applyLinearDrag();
     }
 
     public override void ExitState()

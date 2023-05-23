@@ -171,16 +171,6 @@ public class PlayerStateMachine : MonoBehaviour
         PlayerBody.AddForce(forceMagnitude * slopeVector);
     }
 
-    public void applyLinearDrag()
-    {
-        if (Mathf.Abs(PlayerBody.velocity.x) < 0.1f) return;
-        else PlayerBody.AddForce(-PlayerBody.velocity * _data.getLinearDragCoefficent() * PlayerBody.mass);
-    }
-    public void applyLinearDrag(float dragCoefficent)
-    {
-        PlayerBody.AddForce(-PlayerBody.velocity * dragCoefficent);
-    }
-
     public void Jump()
     {
         float forceMagnitude = _data.jumpForce;
