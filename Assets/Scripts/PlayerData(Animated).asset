@@ -98,6 +98,5 @@ MonoBehaviour:
   jumpBufferTime: 0.2
   wallJumpAngle: 45
   wallJumpForce: 12
-  WallSlideClingTime: 0.25
   wallSlideSpeed: 3
   maxWallSlideSlowdownTime: 0.5

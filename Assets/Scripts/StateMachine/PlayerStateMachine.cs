@@ -109,7 +109,6 @@ public class PlayerStateMachine : MonoBehaviour
         {
             turnAround(slopeVector);
         }
-
     }
 
     private void getUpToSpeed(float targetSpeed, Vector2 parallelSurfaceVector)

@@ -83,5 +83,4 @@ public abstract class PlayerBaseState
         newSubState.SetSuperState(this);
         _currentSubState.EnterState();
     }
-
 }
